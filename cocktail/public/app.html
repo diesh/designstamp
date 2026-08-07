@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Tastinggg</title>
   <style>
-    :root { --bg:#0a0806;--surface:#151008;--card:#1e1509;--border:#332208;--gold:#e8a520;--gold-hover:#f5b830;--gold-dim:#8a600e;--gold-tint:rgba(232,165,32,0.2);--cream:#f5ead0;--muted:#8a7050;--smoke:#2a1c08;--btn-text:#0a0806; }
+    :root { --bg:#0a0806;--surface:#151008;--card:#1e1509;--border:#6a4818;--gold:#e8a520;--gold-hover:#f5b830;--gold-dim:#c08820;--gold-tint:rgba(232,165,32,0.2);--cream:#f5ead0;--muted:#c0a060;--smoke:#301e08;--btn-text:#0a0806; }
     * { box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent; }
     html,body { height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--cream);-webkit-font-smoothing:antialiased; }
 
@@ -24,24 +24,25 @@
     .spirit-indicator { display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:20px; }
     .si-emoji { font-size:1.8rem;line-height:1; }
     .si-info { flex:1; }
-    .si-tasting { font-size:0.68rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:3px; }
-    .si-label { font-size:1.5rem;font-weight:900;color:var(--gold);line-height:1; }
-    .si-name { font-size:0.82rem;color:var(--muted);margin-top:4px; }
+    .si-tasting { font-size:0.75rem;font-weight:600;color:var(--muted);margin-bottom:3px; }
+    .si-name { font-size:1.1rem;font-weight:800;color:var(--gold);line-height:1.2; }
 
     /* Tasting-as in header */
     .header-text { display:flex;flex-direction:column;justify-content:center; }
     .tasting-as { font-size:0.72rem;color:var(--muted);font-weight:500;margin-top:1px; }
 
     #app { display:flex;flex-direction:column;min-height:100dvh; }
-    header { position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:2px solid var(--border);padding:0 16px; }
-    .header-inner { max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px; }
-    .app-title { font-size:1.2rem;font-weight:800;color:var(--gold);letter-spacing:-0.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55vw; }
-    .app-title span { color:var(--muted);font-weight:400;font-size:0.85rem; }
-    .nav-tabs { display:flex;gap:4px;background:var(--smoke);border-radius:12px;padding:4px; }
-    .nav-tab { border:none;background:none;color:var(--muted);font-size:0.9rem;font-weight:700;padding:8px 18px;border-radius:8px;cursor:pointer;transition:all 0.2s;white-space:nowrap; }
-    .nav-tab.active { background:var(--gold);color:var(--btn-text); }
-    main { flex:1;overflow-y:auto;padding:20px 16px 60px; }
-    .view { display:none;max-width:720px;margin:0 auto; }
+    header { position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border); }
+    .header-top { display:flex;align-items:center;padding:0 16px;height:44px; }
+    .app-title { font-size:1rem;font-weight:900;color:var(--gold);letter-spacing:-0.01em; }
+    .event-name-bar { padding:0 16px 10px;font-size:1.15rem;font-weight:800;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2; }
+    .event-name-bar:empty { display:none; }
+    .nav-tabs { display:flex;border-top:1px solid var(--border); }
+    .nav-tab { flex:1;border:none;background:none;color:var(--muted);font-size:0.92rem;font-weight:700;padding:13px 8px;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.15s;letter-spacing:0.01em;display:flex;align-items:center;justify-content:center;gap:7px; }
+    .nav-tab.active { color:var(--cream);border-bottom-color:var(--gold); }
+    .nav-tab svg { width:16px;height:16px;flex-shrink:0; }
+    main { flex:1;overflow-y:auto;padding:20px 16px 0; }
+    .view { display:none;max-width:720px;margin:0 auto;padding-bottom:20px; }
     .view.active { display:block; }
     .section-label { font-size:0.7rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px; }
     .form-block { margin-bottom:28px; }
@@ -106,6 +107,10 @@
     .note-value { color:var(--muted);flex:1;line-height:1.55; }
     .chip-list { display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px; }
     .mini-chip { background:var(--smoke);border:1px solid var(--border);color:var(--cream);font-size:0.75rem;font-weight:600;padding:3px 10px;border-radius:12px; }
+    .win-banner { border-radius:16px;padding:20px 20px 18px;margin-bottom:20px;text-align:center;background:var(--gold-tint);border:2px solid var(--gold); }
+    .win-banner .win-label { font-size:0.7rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px; }
+    .win-banner .win-spirit { font-size:2rem;font-weight:900;color:var(--cream);line-height:1.1;margin-bottom:4px; }
+    .win-banner .win-score { font-size:0.9rem;color:var(--muted);font-weight:600; }
     .no-results { text-align:center;padding:60px 24px;color:var(--muted); }
     .no-results .big { font-size:3rem;margin-bottom:14px;opacity:0.3; }
     .divider { border:none;border-top:1px solid var(--border);margin:10px 0 14px; }
@@ -121,6 +126,9 @@
     .toast.error { background:#c04040;color:#fff; }
     #loading { position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;color:var(--gold);font-size:1.2rem;font-weight:800;transition:opacity 0.3s; }
     #loading.hidden { opacity:0;pointer-events:none; }
+    .marketing-footer { text-align:center;padding:48px 24px 40px;border-top:1px solid var(--border);margin-top:40px; }
+    .mf-logo { font-size:1.5rem;font-weight:900;color:var(--gold);letter-spacing:-0.02em;margin-bottom:6px; }
+    .mf-tag { font-size:0.88rem;color:var(--muted);font-weight:500;line-height:1.5; }
   </style>
 </head>
 <body>
@@ -148,16 +156,14 @@
 <div id="app" style="display:none;flex-direction:column;min-height:100dvh">
   <div id="revealBanner" class="reveal-banner" style="display:none">🎉 The spirits are revealed! Check Results.</div>
   <header>
-    <div class="header-inner">
-      <div class="header-text">
-        <div class="app-title">Tastinggg <span id="eventNameHeader"></span></div>
-        <div class="tasting-as" id="tastingAsLabel"></div>
-      </div>
-      <nav class="nav-tabs">
-        <button class="nav-tab active" data-view="form">Add Notes</button>
-        <button class="nav-tab" data-view="results">Results</button>
-      </nav>
+    <div class="header-top">
+      <div class="app-title">Tastinggg</div>
     </div>
+    <div class="event-name-bar" id="eventNameHeader"></div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-view="form"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2l3 3-7 7H4v-3l7-7z"/><path d="M9 4l3 3"/></svg>Add Notes</button>
+      <button class="nav-tab" data-view="results"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="3" height="5" rx="0.5"/><rect x="6.5" y="5" width="3" height="9" rx="0.5"/><rect x="11" y="2" width="3" height="12" rx="0.5"/></svg>Results</button>
+    </nav>
   </header>
   <main>
     <div id="view-form" class="view active">
@@ -170,8 +176,7 @@
       <div id="spiritIndicator" class="spirit-indicator" style="display:none">
         <div class="si-emoji" id="indicatorEmoji"></div>
         <div class="si-info">
-          <div class="si-tasting">Now tasting</div>
-          <div class="si-label" id="indicatorLabel"></div>
+          <div class="si-tasting" id="indicatorTasting"></div>
           <div class="si-name" id="indicatorName"></div>
         </div>
       </div>
@@ -192,6 +197,7 @@
       <div id="pickPrompt" class="pick-prompt">Select a spirit to begin</div>
     </div>
     <div id="view-results" class="view">
+      <div id="winBanner" style="display:none"></div>
       <div class="results-header">
         <div>
           <div class="section-label">All Submissions</div>
@@ -212,6 +218,10 @@
       </div>
       <div id="resultsDetail"></div>
     </div>
+    <div class="marketing-footer">
+      <div class="mf-logo">Tastinggg</div>
+      <div class="mf-tag">You've got taste. Test it with friends.</div>
+    </div>
   </main>
 </div>
 
@@ -219,12 +229,12 @@
 const DB_URL = 'https://cocktail-49fc4-default-rtdb.firebaseio.com';
 
 const SPIRIT_THEMES = {
-  'tequila-mezcal': { name:'Tequila & Mezcal', bg:'#0f0800',surface:'#1a1000',card:'#231600',border:'#3a2400',gold:'#d4a020',goldHover:'#e8b430',goldDim:'#7a5010',goldTint:'rgba(212,160,32,0.2)',cream:'#f5e6c8',muted:'#a07840',smoke:'#1a0f00',btnText:'#0f0800',emoji:'🥃' },
-  'red-wine':       { name:'Red Wine', bg:'#0e0004',surface:'#180008',card:'#22000c',border:'#440016',gold:'#a01830',goldHover:'#c02040',goldDim:'#6a0820',goldTint:'rgba(160,24,48,0.2)',cream:'#f5d0d8',muted:'#8a4060',smoke:'#1c0008',btnText:'#fff',emoji:'🍷' },
-  'white-wine':     { name:'White Wine', bg:'#f0ece4',surface:'#e8e3da',card:'#faf7f2',border:'#d0cbbf',gold:'#9b8c5c',goldHover:'#b0a070',goldDim:'#7a6c40',goldTint:'rgba(155,140,92,0.2)',cream:'#1a1610',muted:'#706858',smoke:'#e4dfd4',btnText:'#1a1610',emoji:'🥂' },
-  'port':           { name:'Port', bg:'#08000e',surface:'#100018',card:'#180022',border:'#35003d',gold:'#8030a0',goldHover:'#a040c0',goldDim:'#5a1870',goldTint:'rgba(128,48,160,0.2)',cream:'#f0d0f8',muted:'#7a4090',smoke:'#100018',btnText:'#fff',emoji:'🍶' },
-  'whiskey-scotch': { name:'Whiskey / Scotch', bg:'#100800',surface:'#1e1000',card:'#281800',border:'#4a2c00',gold:'#e06020',goldHover:'#f07030',goldDim:'#904010',goldTint:'rgba(224,96,32,0.2)',cream:'#f5dfc0',muted:'#8a6030',smoke:'#1e1000',btnText:'#100800',emoji:'🥃' },
-  'beer':           { name:'Beer', bg:'#080c00',surface:'#101800',card:'#182200',border:'#303e00',gold:'#c8c000',goldHover:'#e0d800',goldDim:'#787200',goldTint:'rgba(200,192,0,0.2)',cream:'#f5f0c8',muted:'#7a7840',smoke:'#101800',btnText:'#080c00',emoji:'🍺' },
+  'tequila-mezcal': { name:'Tequila & Mezcal', bg:'#0f0800',surface:'#1a1000',card:'#271800',border:'#6a4818',gold:'#d4a020',goldHover:'#e8b430',goldDim:'#c08820',goldTint:'rgba(212,160,32,0.2)',cream:'#f5e6c8',muted:'#c09848',smoke:'#301e08',btnText:'#0f0800',emoji:'🥃' },
+  'red-wine':       { name:'Red Wine', bg:'#0e0004',surface:'#180008',card:'#260010',border:'#8a1838',gold:'#e03055',goldHover:'#f04868',goldDim:'#c82848',goldTint:'rgba(200,40,72,0.2)',cream:'#f5d0d8',muted:'#d08898',smoke:'#300010',btnText:'#fff',emoji:'🍷' },
+  'white-wine':     { name:'White Wine', bg:'#f0ece4',surface:'#e8e3da',card:'#faf7f2',border:'#bfb8a8',gold:'#7a6c3c',goldHover:'#9a8a50',goldDim:'#5c5028',goldTint:'rgba(122,108,60,0.2)',cream:'#1a1610',muted:'#4a4030',smoke:'#e4dfd4',btnText:'#1a1610',emoji:'🥂' },
+  'port':           { name:'Port', bg:'#08000e',surface:'#100018',card:'#1e0030',border:'#6a20a0',gold:'#c060e0',goldHover:'#d878f0',goldDim:'#a848c8',goldTint:'rgba(180,80,220,0.2)',cream:'#f0d0f8',muted:'#c088d8',smoke:'#280040',btnText:'#fff',emoji:'🍶' },
+  'whiskey-scotch': { name:'Whiskey / Scotch', bg:'#100800',surface:'#1e1000',card:'#2e1c00',border:'#7a5020',gold:'#e06020',goldHover:'#f07030',goldDim:'#d05818',goldTint:'rgba(224,96,32,0.2)',cream:'#f5dfc0',muted:'#c89050',smoke:'#342008',btnText:'#100800',emoji:'🥃' },
+  'beer':           { name:'Beer', bg:'#080c00',surface:'#101800',card:'#1e2a00',border:'#606800',gold:'#d8d000',goldHover:'#ece800',goldDim:'#b0b000',goldTint:'rgba(210,200,0,0.2)',cream:'#f5f0c8',muted:'#c0bc50',smoke:'#283200',btnText:'#080c00',emoji:'🍺' },
 };
 
 function applyTheme(spiritType) {
@@ -365,8 +375,7 @@ function pickName(name){
   document.getElementById('nameScreen').style.display='none';
   const appEl=document.getElementById('app');
   appEl.style.display='flex';
-  document.getElementById('eventNameHeader').textContent=SESSION_CONFIG.eventName?`· ${SESSION_CONFIG.eventName}`:'';
-  document.getElementById('tastingAsLabel').textContent=`Tasting as ${name}`;
+  document.getElementById('eventNameHeader').textContent=SESSION_CONFIG.eventName||'';
   buildForm();
   buildResults();
   updateDots();
@@ -424,9 +433,9 @@ function updateSpiritIndicator(){
   const theme=SPIRIT_THEMES[SESSION_CONFIG.spiritType]||SPIRIT_THEMES['tequila-mezcal'];
   document.getElementById('spiritIndicator').style.display='flex';
   document.getElementById('indicatorEmoji').textContent=theme.emoji;
-  document.getElementById('indicatorLabel').textContent=`${theme.name} · ${spirit.label}`;
-  const revealedName=SESSION_CONFIG.revealed&&spirit.revealName?spirit.revealName:'';
-  document.getElementById('indicatorName').textContent=revealedName;
+  const spiritLabel=SESSION_CONFIG.revealed&&spirit.revealName?spirit.revealName:`${theme.name} ${spirit.label}`;
+  document.getElementById('indicatorTasting').textContent=selectedPerson?`${selectedPerson}, you're now tasting:`:'Now tasting:';
+  document.getElementById('indicatorName').textContent=spiritLabel;
 }
 
 function checkShow(){
@@ -513,7 +522,27 @@ function buildResults(){
     return scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1):null;
   });
   document.getElementById('scoreTableFoot').innerHTML=`<td>Avg</td>${colAvgs.map(a=>`<td>${a??'–'}</td>`).join('')}<td></td>`;
+  buildWinBanner(cfg, colAvgs);
   buildDetail();
+}
+
+function buildWinBanner(cfg, colAvgs){
+  const banner=document.getElementById('winBanner');
+  // need at least one spirit with scores
+  const scored=colAvgs.map((avg,i)=>({spirit:cfg.spirits[i],avg:avg===null?null:parseFloat(avg)})).filter(x=>x.avg!==null);
+  if(!scored.length){banner.style.display='none';return;}
+  const best=Math.max(...scored.map(x=>x.avg));
+  const winners=scored.filter(x=>x.avg===best);
+  const isTie=winners.length>1;
+  const spiritLabel=s=>cfg.revealed&&s.revealName?s.revealName:s.label;
+  if(isTie){
+    const names=winners.map(w=>spiritLabel(w.spirit)).join(' & ');
+    banner.innerHTML=`<div class="win-banner"><div class="win-label">🏆 It's a tie!</div><div class="win-spirit">${names}</div><div class="win-score">Both averaging ${best}/10</div></div>`;
+  }else{
+    const w=winners[0];
+    banner.innerHTML=`<div class="win-banner"><div class="win-label">🏆 Top Spirit</div><div class="win-spirit">${spiritLabel(w.spirit)}</div><div class="win-score">Averaging ${best}/10</div></div>`;
+  }
+  banner.style.display='block';
 }
 
 function buildDetail(){

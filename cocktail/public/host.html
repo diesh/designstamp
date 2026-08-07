@@ -9,13 +9,13 @@
     :root {
       --bg: #1a0f00;
       --card: #2a1800;
-      --border: #3d2200;
+      --border: #6a4818;
       --gold: #d4a853;
       --gold-hover: #e8be6a;
-      --gold-dim: #7a5020;
+      --gold-dim: #c08830;
       --gold-tint: rgba(212,168,83,0.15);
       --cream: #f5e6c8;
-      --muted: #a07840;
+      --muted: #c09848;
       --btn-text: #1a0f00;
     }
 
@@ -37,30 +37,30 @@
       background: var(--card); border: 1px solid var(--border); border-radius: 16px;
       padding: 28px; max-width: 560px; margin: 0 auto 24px;
     }
-    .card h2 { font-size: 1.1rem; color: var(--gold); margin-bottom: 20px; font-weight: 600; }
+    .card h2 { font-size: 1.2rem; color: var(--cream); margin-bottom: 20px; font-weight: 800; }
 
-    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    label { display: block; font-size: 0.9rem; color: var(--cream); font-weight: 700; margin-bottom: 8px; }
 
     input[type="text"] {
-      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
-      color: var(--cream); padding: 12px 16px; font-size: 1rem; margin-bottom: 20px;
+      width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: 10px;
+      color: var(--cream); padding: 14px 16px; font-size: 1rem; margin-bottom: 20px;
       outline: none; transition: border-color 0.2s; font-family: inherit;
     }
     input[type="text"]:focus { border-color: var(--gold); }
-    input[type="text"]::placeholder { color: var(--gold-dim); opacity: 0.6; }
+    input[type="text"]::placeholder { color: var(--muted); }
 
     .spirit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
     .spirit-pill {
       background: var(--bg); border: 2px solid var(--border); border-radius: 10px;
       padding: 12px 16px; cursor: pointer; text-align: center; font-size: 0.9rem;
-      color: var(--muted); transition: all 0.2s; user-select: none;
+      color: var(--cream); transition: all 0.2s; user-select: none;
     }
-    .spirit-pill:hover { border-color: var(--gold-dim); color: var(--gold); }
+    .spirit-pill:hover { border-color: var(--gold); color: var(--gold); }
     .spirit-pill.selected { background: var(--gold-tint); border-color: var(--gold); color: var(--gold); font-weight: 600; }
     .spirit-emoji { display: block; font-size: 1.4rem; margin-bottom: 4px; }
 
     .count-row { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-    .count-label { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+    .count-label { font-size: 0.9rem; color: var(--cream); font-weight: 600; white-space: nowrap; }
     .count-btn {
       width: 36px; height: 36px; background: var(--bg); border: 1px solid var(--border);
       border-radius: 8px; color: var(--gold); font-size: 1.2rem; cursor: pointer;
@@ -73,7 +73,7 @@
     .spirit-name-field { position: relative; }
     .spirit-name-field .spirit-label {
       position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-      font-size: 0.85rem; color: var(--gold-dim); font-weight: 700; pointer-events: none;
+      font-size: 0.9rem; color: var(--gold); font-weight: 800; pointer-events: none;
     }
     .spirit-name-field input { padding-left: 30px; margin-bottom: 0; }
 
@@ -226,8 +226,11 @@
     <div class="card">
       <h2 id="setup-title">Event Details</h2>
 
-      <label>Event Name</label>
-      <input type="text" id="event-name" placeholder="e.g. Friday Night Tequila" maxlength="60">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <label style="margin-bottom:0">Event Name</label>
+        <span id="name-counter" style="font-size:0.75rem;color:var(--gold-dim)">0 / 30</span>
+      </div>
+      <input type="text" id="event-name" placeholder="e.g. Friday Night Tequila" maxlength="30" oninput="document.getElementById('name-counter').textContent=this.value.length+' / 30'">
 
       <label>Spirit Type</label>
       <div class="spirit-grid">
@@ -263,6 +266,7 @@
       <div class="spirit-names" id="spirit-names"></div>
 
       <label>Who's Tasting?</label>
+      <p style="font-size:0.8rem;color:var(--muted);margin:0 0 16px">Add yourself if you're tasting too.</p>
       <div class="people-section">
         <div class="people-input-row">
           <input type="text" id="person-input" placeholder="Add a name…" maxlength="30"
@@ -286,7 +290,7 @@
         <div class="room-code" id="room-code-text">——</div>
         <div class="guest-url" id="guest-url-text"></div>
       </div>
-      <div class="qr-container"><canvas id="qr-canvas"></canvas></div>
+      <div class="qr-container"><canvas id="qr-canvas" style="display:none"></canvas></div>
       <button class="copy-btn" onclick="copyLink()">&#128203; Copy Guest Link</button>
       <button class="edit-btn" onclick="openEditSetup()">&#9998; Edit Session Setup</button>
     </div>
@@ -318,12 +322,12 @@
     const LABELS = ['A','B','C','D','E','F','G','H'];
 
     const SPIRIT_THEMES = {
-      'tequila-mezcal': { bg:'#0f0800',card:'#231600',border:'#3a2400',gold:'#d4a020',goldHover:'#e8b430',goldDim:'#7a5010',goldTint:'rgba(212,160,32,0.2)',cream:'#f5e6c8',muted:'#a07840',btnText:'#0f0800' },
-      'red-wine':       { bg:'#0e0004',card:'#22000c',border:'#440016',gold:'#a01830',goldHover:'#c02040',goldDim:'#6a0820',goldTint:'rgba(160,24,48,0.2)',cream:'#f5d0d8',muted:'#8a4060',btnText:'#fff' },
-      'white-wine':     { bg:'#f0ece4',card:'#faf7f2',border:'#d0cbbf',gold:'#9b8c5c',goldHover:'#b0a070',goldDim:'#7a6c40',goldTint:'rgba(155,140,92,0.2)',cream:'#1a1610',muted:'#706858',btnText:'#1a1610' },
-      'port':           { bg:'#08000e',card:'#180022',border:'#35003d',gold:'#8030a0',goldHover:'#a040c0',goldDim:'#5a1870',goldTint:'rgba(128,48,160,0.2)',cream:'#f0d0f8',muted:'#7a4090',btnText:'#fff' },
-      'whiskey-scotch': { bg:'#100800',card:'#281800',border:'#4a2c00',gold:'#e06020',goldHover:'#f07030',goldDim:'#904010',goldTint:'rgba(224,96,32,0.2)',cream:'#f5dfc0',muted:'#8a6030',btnText:'#100800' },
-      'beer':           { bg:'#080c00',card:'#182200',border:'#303e00',gold:'#c8c000',goldHover:'#e0d800',goldDim:'#787200',goldTint:'rgba(200,192,0,0.2)',cream:'#f5f0c8',muted:'#7a7840',btnText:'#080c00' },
+      'tequila-mezcal': { bg:'#0f0800',card:'#271800',border:'#6a4818',gold:'#d4a020',goldHover:'#e8b430',goldDim:'#c08820',goldTint:'rgba(212,160,32,0.2)',cream:'#f5e6c8',muted:'#c09848',btnText:'#0f0800' },
+      'red-wine':       { bg:'#0e0004',card:'#260010',border:'#8a1838',gold:'#e03055',goldHover:'#f04868',goldDim:'#c82848',goldTint:'rgba(200,40,72,0.2)',cream:'#f5d0d8',muted:'#d08898',btnText:'#fff' },
+      'white-wine':     { bg:'#f0ece4',card:'#faf7f2',border:'#bfb8a8',gold:'#7a6c3c',goldHover:'#9a8a50',goldDim:'#5c5028',goldTint:'rgba(122,108,60,0.2)',cream:'#1a1610',muted:'#4a4030',btnText:'#1a1610' },
+      'port':           { bg:'#08000e',card:'#1e0030',border:'#6a20a0',gold:'#c060e0',goldHover:'#d878f0',goldDim:'#a848c8',goldTint:'rgba(180,80,220,0.2)',cream:'#f0d0f8',muted:'#c088d8',btnText:'#fff' },
+      'whiskey-scotch': { bg:'#100800',card:'#2e1c00',border:'#7a5020',gold:'#e06020',goldHover:'#f07030',goldDim:'#d05818',goldTint:'rgba(224,96,32,0.2)',cream:'#f5dfc0',muted:'#c89050',btnText:'#100800' },
+      'beer':           { bg:'#080c00',card:'#1e2a00',border:'#606800',gold:'#d8d000',goldHover:'#ece800',goldDim:'#b0b000',goldTint:'rgba(210,200,0,0.2)',cream:'#f5f0c8',muted:'#c0bc50',btnText:'#080c00' },
     };
 
     function applyTheme(type) {
@@ -424,7 +428,9 @@
       document.getElementById('save-btn').textContent = isEditMode ? 'Save Changes →' : 'Create Session →';
 
       if (config) {
-        document.getElementById('event-name').value = config.eventName || '';
+        const enVal = config.eventName || '';
+      document.getElementById('event-name').value = enVal;
+      document.getElementById('name-counter').textContent = enVal.length + ' / 30';
         spiritType = config.spiritType || null;
         spiritCount = config.spirits ? config.spirits.length : 4;
         people = config.people ? [...config.people] : [];
@@ -542,7 +548,7 @@
       QRCode.toCanvas(canvas, guestUrl, {
         width: 180,
         color: { dark: goldColor, light: bgColor }
-      });
+      }, () => { canvas.style.display = 'block'; });
 
       renderRevealGrid();
       loadProgress();
@@ -564,11 +570,20 @@
 
     function copyLink() {
       const guestUrl = location.origin + location.pathname.replace('host.html', 'app.html') + '?code=' + sessionCode;
-      navigator.clipboard.writeText(guestUrl).then(() => {
-        const btn = document.querySelector('.copy-btn');
-        btn.textContent = '✓ Copied!';
-        setTimeout(() => { btn.innerHTML = '&#128203; Copy Guest Link'; }, 2000);
-      });
+      const btn = document.querySelector('.copy-btn');
+      const confirm = () => { btn.textContent = '✓ Copied!'; setTimeout(() => { btn.innerHTML = '&#128203; Copy Guest Link'; }, 2000); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(guestUrl).then(confirm).catch(() => fallbackCopy(guestUrl, confirm));
+      } else {
+        fallbackCopy(guestUrl, confirm);
+      }
+    }
+    function fallbackCopy(text, onSuccess) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { document.execCommand('copy'); onSuccess(); } catch {}
+      document.body.removeChild(ta);
     }
 
     let progressInterval = null;

@@ -1,3 +1,9 @@
 cocktail/node_modules/
+node_modules/
+package-lock.json
+check.js
 .DS_Store
 **/.DS_Store
+
+# local copy-rewrite snapshots
+_backup-*/

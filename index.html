@@ -4,18 +4,102 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1" name="viewport" />
-  <title>DesignStamp – Design and Coaching</title>
+  <title>DesignStamp – Team Augmentation, Design Leadership &amp; AI Workshops</title>
+  <meta name="description"
+    content="Embedded design and product teams, fractional design leadership, and AI workshops for orgs that need senior capability now. Twenty-five years with PEPFAR, the OECD, Central 1, and the Gates Foundation — Gagan Diesh scaled Thinkific's design org from 6 to 30 through a $1B+ IPO." />
+  <meta name="keywords"
+    content="team augmentation, design team augmentation, fractional design leadership, fractional product leadership, design leadership coaching, AI workshops for product teams, embedded UX research, design and research capability, senior design leadership" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="Gagan Diesh" />
+  <link rel="canonical" href="https://designstamp.com/" />
+  <meta name="theme-color" content="#e1352b" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DesignStamp" />
+  <meta property="og:url" content="https://designstamp.com/" />
+  <meta property="og:title" content="DesignStamp – Team Augmentation, Design Leadership & AI Workshops" />
+  <meta property="og:description"
+    content="Embedded design and product teams, fractional design leadership, and AI workshops for orgs that need senior capability now. Twenty-five years with PEPFAR, the OECD, Central 1, and the Gates Foundation." />
+  <meta property="og:image" content="https://designstamp.com/img/asset/og-designstamp.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="DesignStamp logo mark beside the tagline: senior design, research, and product capabilities." />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="DesignStamp – Team Augmentation, Design Leadership & AI Workshops" />
+  <meta name="twitter:description"
+    content="Embedded design and product teams, fractional design leadership, and AI workshops for orgs that need senior capability now." />
+  <meta name="twitter:image" content="https://designstamp.com/img/asset/og-designstamp.png" />
+  <meta name="twitter:image:alt" content="DesignStamp logo mark beside the tagline: senior design, research, and product capabilities." />
+
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Structured data: targets search intent for "team augmentation",
+       "design leadership", and "workshops" via makesOffer, matching the
+       three services actually described in the Capabilities/About copy. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "DesignStamp",
+    "url": "https://designstamp.com/",
+    "description": "Senior design, research, and product capability for teams that need it now: team augmentation, fractional design and product leadership, and AI workshops.",
+    "founder": {
+      "@type": "Person",
+      "name": "Gagan Diesh",
+      "jobTitle": "Founder"
+    },
+    "areaServed": "Global",
+    "makesOffer": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Team Augmentation",
+          "description": "Senior designers, researchers, and product people embedded with your team to cover capability you don't have in-house."
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Fractional Design and Product Leadership",
+          "description": "Someone to run the design or product function while you build out your permanent team."
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "AI Workshops for Product Teams",
+          "description": "Workshops for product orgs working out what AI actually changes about their design and research practice."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
 
 <body>
-  <div class="masthead" id="masthead"></div>
+  <!-- .masthead-float-1/2/3 give the hero background more depth (see
+       styles.css). They used to be dead CSS with no matching elements here,
+       so only the ::before/::after pseudo-elements ever actually rendered -
+       2 of the intended 5 blob layers. Hidden on mobile so phones keep the
+       exact look they've already been tested against; desktop gets the
+       full set. -->
+  <div class="masthead" id="masthead">
+    <div class="masthead-float-1"></div>
+    <div class="masthead-float-2"></div>
+    <div class="masthead-float-3"></div>
+  </div>
 
 
 
@@ -41,19 +125,30 @@
     <div class="anniv-accent"></div>
 </div>
 
-  <div class="sentenceRow" id="sentenceRow">
-    <div class="sentence-inner" id="sentenceInner">
-      <span class="nav-rest" data-link="#work">Design and</span><span class="nav-word"
-        data-link="#coaching">coaching</span>
-      <span class="nav-rest">to help teams</span><br />
-      <span class="nav-word" data-link="#work">work</span>
-      <span class="nav-rest">smarter, and love their craft.</span><br />
-      <span class="nav-rest">Learn</span><span class="nav-word" data-link="#about">about</span>
-      <span class="nav-rest">DesignStamp.</span>
+  <!-- sentence-clip wraps the hero sentence on mobile only (see styles.css).
+       .sentenceRow's own layout width is as wide as its longest unwrapped
+       line of text (it's white-space:nowrap with no width set), which on a
+       phone is far wider than the screen; a JS-computed transform:scale()
+       shrinks it visually, but the *unscaled* layout box still registers at
+       full width and was the cause of page-wide horizontal scroll/rubber-
+       banding on mobile Safari. Clipping .sentenceRow directly broke the
+       shrink-to-fit visual (it clips in pre-transform space, cutting text
+       before the scale-down ever applies). This wrapper has no transform of
+       its own, so its overflow:hidden clips in real screen space, after
+       .sentenceRow's transform has already shrunk the content to fit. -->
+  <div class="sentence-clip">
+    <div class="sentenceRow" id="sentenceRow">
+      <div class="sentence-inner" id="sentenceInner">
+        <span class="nav-rest">Senior design and research</span><span class="nav-word"
+          data-link="#coaching">capabilities</span><br />
+        <span class="nav-rest">for teams that need help now. See the</span><span class="nav-word" data-link="#work">work</span><br />
+        <span class="nav-rest">and learn</span><span class="nav-word" data-link="#about">about</span>
+        <span class="nav-rest">DesignStamp.</span>
+
+      </div>
+
 
     </div>
-
-
   </div>
 
 
@@ -61,55 +156,79 @@
   <main>
     <section class="text-section" id="coaching">
       <div class="section-inner">
-        <h1>Coaching</h1>
-        <p class="subhead">Helping design and product leaders grow through clarity, empathy, and strategy.</p>
-        <p>Since 2001, we’ve helped leaders and teams design, build, and sustain creative systems that work smarter and
-          lead with intention.</p>
+        <h1>Capabilities</h1>
+        <p class="subhead">Your org needs what it doesn’t have. Bring us in when you need senior design, research,
+          and product capability: <a class="offer-link" href="#fractional-leadership">as a leader</a>, or
+          <a class="offer-link" href="#team-augmentation">as a team</a>.</p>
+        <p>I’m Gagan Diesh. For 25 years orgs have brought DesignStamp in to be the capability they didn’t have
+          in-house. For some that was a research wing, and we ran global research for PEPFAR, the world’s largest
+          HIV/AIDS initiative, along with work for Johns Hopkins, the OECD, and the Gates Foundation. For others it
+          was a design team, and we designed Central 1’s first mobile banking app, now running at 300+ financial
+          institutions. For others it was someone to run the whole thing.</p>
+        <p>That’s what happened at Rouxbe: DesignStamp was hired as agency of choice when it was a startup, and I
+          became employee number 3, building their entire dev and design team and managing all design and strategic
+          partnerships. Rouxbe is now a global leader in culinary education, from home kitchens to military bases. I
+          was also Thinkific’s first VP of Design and Research, where I grew the design org from 6 people to over 30
+          and hired most of them. We worked hard to successfully complete an IPO and achieve a $1 billion valuation.
+        </p>
+        <p>Are your design and research functions keeping up? Do you have the right people and leaders to build what
+          your customers are asking for? If not,
+          <!-- The mailto stays in the href so the link still does something useful
+               with JS off. The handler intercepts it and opens the contact panel. -->
+          <a class="offer-link" data-email data-email-subject="Design and research"
+            data-open-contact>that’s worth a conversation</a>.
+          Whether you need someone to lead your team or extra hands to get through the next two quarters, we’ll work
+          out what’s missing and fix it together.</p>
 
         <div class="coaching-boxes">
 
-          <div class="coaching-box">
+          <div class="coaching-box" id="fractional-leadership">
             <span class="case-badge coaching-badge"
               style="display:inline-block;background:#fff1f1;color:#b3261e;padding:3px 8px;border-radius:6px;font-size:0.8rem;font-weight:600;margin-bottom:8px;">
-              Team Coaching
+              As a leader
             </span>
-            <h3>Workshops for Tech &amp; Product teams</h3>
-            <p><strong>Unlock Your Team’s Potential</strong><br>
-              These workshops help teams think bigger, move faster, and collaborate better. They build creativity,
-              trust, and momentum through tools your team can use right away.
+            <h3>Fractional design and product leadership</h3>
+            <p><strong>For companies with designers and nobody senior running them.</strong><br>
+              Embedded with your team: org design, hiring, operating rhythm, critique standards, and roadmap
+              partnership with your exec team.
             </p>
 
             <div class="extra">
-              <p><strong>What to Expect</strong><br>
-                Every session is customized to your team’s goals and challenges. Whether you’re aligning strategy,
-                solving complex problems, or reigniting a stalled team, you’ll leave with clarity, alignment, and energy
-                to move forward.
-              </p>
-
-              <p><strong>Popular Workshops</strong></p>
+              <p><strong>This works when</strong></p>
               <ul>
-                <li><strong>Design Thinking for Leaders:</strong> Use design methods to frame sharper questions, uncover
-                  insights, and drive innovation at the leadership level.</li>
-                <li><strong>Building an Innovative Culture:</strong> Turn design values into daily habits. Build rituals
-                  that keep creativity and customers at the center.</li>
-                <li><strong>Fast Ideation Sprint:</strong> Cut through noise and surface strong ideas fast. Great for
-                  cross-functional or startup teams that need a spark.</li>
-                <li><strong>Design Sprint:</strong> Move from messy problem to tested prototype in 4–5 days, backed by
-                  customer feedback.</li>
-                <li><strong>Clarity &amp; Alignment Workshop:</strong> Align product, design, and leadership around what
-                  truly matters before investing time or code.</li>
+                <li>You have 3 to 15 designers and nobody senior running them.</li>
+                <li>Your design leader has either left or is strapped for time and you can’t afford more F/T
+                  leadership.</li>
+                <li>Your team is not able to keep up with the speed of what is needed to take your product to the
+                  next level.</li>
               </ul>
 
-              <p><strong>Who It’s For</strong><br>
-                Executives, senior leaders, startups, and cross-functional teams ready to turn meetings into momentum.
+              <p><strong>What it looks like in practice</strong><br>
+                At Think Tank Training Centre, Canada’s top-ranked CG and VFX school, I covered a one-year parental
+                leave as fractional Head of Product and Design. We rebuilt six admin workflows and recovered 1.5
+                full-time roles per term.
               </p>
 
-              <p><strong>Why It Works</strong><br>
-                Workshops spark progress. They help teams think clearly, act faster, and work together better. Explore
-                how we can collaborate — and when you’re ready, let’s design the right workshop for your team.
+              <p><strong>Before that</strong><br>
+                Director, then Senior Director, then VP of Experience Design and Research at Thinkific. I scaled the
+                design org from 6 to over 30, built the research function from zero, and we took the company public at
+                a $1B+ valuation.
               </p>
 
-              <a href="https://diesh.ca/coaching/TeamWorkshops.html" class="learn-more-link">Learn more →</a>
+              <p><strong>On AI</strong><br>
+                I build AI products myself, in code, including the coaching platform my own business runs on. So I can
+                tell your team which parts of their workflow AI is ready for and which parts it isn’t, and set the
+                rules for who reviews what. Most teams have tried a tool, seen it produce less than mediocre
+                results, and quietly stopped.
+              </p>
+
+              <p><strong>How it works</strong><br>
+                Usually two days a week, three months minimum. We start with a call about what’s actually going on. I
+                come back with what I think it needs and what it costs, including the times that’s less than you were
+                expecting.
+              </p>
+
+              <a data-email data-email-subject="Fractional leadership" class="learn-more-link">Start a conversation →</a>
             </div>
             <span class="chevron-indicator">
               <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="url(#chevronGradient)"
@@ -133,43 +252,45 @@
 
           </div>
 
-          <div class="coaching-box" id="coaching-leaders">
+          <div class="coaching-box" id="team-augmentation">
             <span class="case-badge coaching-badge"
               style="display:inline-block;background:#eef6ff;color:#2c3e94;padding:3px 8px;border-radius:6px;font-size:0.8rem;font-weight:600;margin-bottom:8px;">
-              One-on-One Coaching
+              As a team
             </span>
-            <h3>Coaching for Leaders</h3>
-            <p><strong>Leading by Design</strong><br>
-              Understand your leadership style, how you show up in calm and high-pressure moments, and how to lead with
-              empathy, clarity, and impact.
+            <h3>Team augmentation</h3>
+            <p><strong>Senior designers, researchers, and product people, working inside your team.</strong><br>
+              I work out which roles the problem actually needs, find the people, and stay involved while they get up
+              to speed. You get a team picked for the job, all working to complete a specific project, within a
+              specific timeline. Speed is a natural byproduct of this type of engagement.
             </p>
 
             <div class="extra">
-              <p>Learn to rally your team, handle challenges with confidence, and bring out the best in others and
-                yourself. This program builds the awareness and habits to lead with intention and resilience.</p>
-              <p>Across eight weeks, we’ll strengthen your leadership through reflection, action, and feedback. You’ll
-                have weekly 1:1 sessions, focused exercises, and practical tools that create visible progress from the
-                start.</p>
-
-              <h4>What You’ll Gain</h4>
+              <p><strong>This works when</strong></p>
               <ul>
-                <li>Understand the principles and defaults that shape how you lead.</li>
-                <li>Clarify what sets you apart and where you want to grow.</li>
-                <li>Lead with calm and focus when others are uncertain.</li>
-                <li>Influence through trust, not control.</li>
-                <li>Build a team that’s honest, respectful, and motivated.</li>
-                <li>Design the conditions for great work, then step back.</li>
-                <li>Communicate what you believe, how you lead, and what comes next.</li>
+                <li>You have a bunch of opinions on why your customer is unhappy and no researchers.</li>
+                <li>Your roadmap has outrun your design capacity and hiring won’t close the gap in time.</li>
+                <li>A project needs senior people who can walk in and be useful in week one.</li>
+                <li>You need the capability for two quarters, not two years.</li>
               </ul>
 
-              <h4>Lead What’s Next</h4>
-              <p>By the end, you’ll have sharper thinking, stronger presence, and a clearer sense of direction. You’ll
-                manage relationships across your organization with confidence and ease.</p>
+              <p><strong>As a research wing</strong><br>
+                I led global research for PEPFAR, the world’s largest HIV/AIDS initiative, running 150+ participant
+                studies across multiple countries to guide product direction for care providers and programme
+                administrators. Similar work for Johns Hopkins, the OECD, and the Gates Foundation.
+              </p>
 
-              <p>Leadership is a lifelong craft. The best leaders keep learning, adapting, and refining. As you apply
-                these practices, you’ll gain clarity, confidence, and lasting impact in your work.</p>
+              <p><strong>As a design team</strong><br>
+                We designed Central 1’s first mobile banking app, then every major release across iOS and Android. It
+                now serves 300+ financial institutions and ranked first for mobile banking in North America.
+              </p>
 
-              <p><a href="https://diesh.ca/coaching/CoachingForLeaders">Learn more about Coaching for Leaders →</a></p>
+              <p><strong>Recently</strong><br>
+                A six-month usability research engagement for Unosquare in 2025: 50+ interviews across four countries
+                with AI-assisted synthesis, ending in a stakeholder workshop that turned the sharpest pain points into
+                redesign priorities for their client’s global platform.
+              </p>
+
+              <p><a data-email data-email-subject="Team augmentation">Talk about capacity →</a></p>
             </div>
 
             <span class="chevron-indicator">
@@ -1314,34 +1435,41 @@
     <section class="text-section" id="about">
       <div class="section-inner">
         <h1>About DesignStamp</h1>
-        <p class="subhead">Human-centered Design Leadership and product clarity since 2001.</p>
+        <p class="subhead">Design and product leadership. Twenty-five years of it, most of it hands-on.</p>
 
         <p>
-          I'm <a href="https://diesh.ca?designstamp" target="_blank">Gagan Diesh</a>. I founded DesignStamp in 2001 to
-          help organizations build products that matter.
-          The world has changed dramatically since we started and so have the challenges. Today, the need for clear,
-          mission-driven digital experiences is more urgent than ever. Our work sits at the intersection of design
-          leadership
-          coaching, product strategy, and research-driven decision-making.
+          DesignStamp has been my practice since 2001. For eighteen years I ran it as a consultancy, leading global
+          research for PEPFAR, the world’s largest HIV/AIDS initiative, and designing the mobile banking platform now
+          running at 300+ financial institutions. Clients included the Gates Foundation, the OECD, and the U.S.
+          government.
         </p>
 
         <p>
-          Across tech, nonprofit, and finance, we support leaders and teams who want to move faster, make better
-          decisions,
-          and create digital experiences that matter.
+          In 2019 I put the practice down and went in-house at Thinkific, moving from Director to Senior Director to
+          VP of Experience Design and Research. I scaled the design org from 6 to over 30, built the research function
+          from zero, and we took the company public at a $1B+ valuation. I came back to DesignStamp in 2023.
+        </p>
+
+        <p>
+          Since 2023 I’ve done both. Fractional design and product leadership for companies scaling their teams, and
+          workshops for product orgs working out what AI actually changes. I build AI products myself, in code, so that
+          second part isn’t theoretical.
         </p>
 
         <h2>Today we focus on</h2>
         <ul>
-          <li><strong>Coaching for product, design, and tech leaders</strong> — helping individuals and teams maximize
-            their impact</li>
-          <li><strong>Strategic design leadership</strong> — augmenting internal teams with crisp research, design, and
-            product clarity</li>
+          <li><strong>Team augmentation.</strong> Senior designers, researchers, and product people embedded with
+            yours, for as long as the work needs.</li>
+          <li><strong>Fractional design and product leadership.</strong> Someone to run the function while you build
+            toward the permanent hire, or instead of it.</li>
         </ul>
 
         <p>
-          We continue to support long-term partners while selectively taking on new engagements where we can provide
-          momentum and impactful design thinking.
+          I take on a small number of engagements at a time. I have also worked hard to build a network of senior
+          professionals who I can call upon to help when needed. So
+          <a class="offer-link" data-email data-email-subject="Enquiry from designstamp.com"
+            data-open-contact>let’s have a conversation</a>, and figure out what you need so I can help shape the
+          right approach for your situation.
         </p>
 
         <h2>Our Principles</h2>
@@ -1362,9 +1490,8 @@
 
         <h3>We respect ourselves</h3>
         <p>
-          We value diverse perspectives and integrate seamlessly with internal teams. Whether we’re coaching leaders or
-          supporting
-          teams directly, we’re here to help each other do our best work. ❤️
+          We value diverse perspectives and we work well inside existing teams. Whether we’re leading the design org or
+          supporting it, we’re here to help each other do our best work. ❤️
         </p>
 
         <h2>Our Process</h2>
@@ -1385,9 +1512,8 @@
 
         <h4><span class="step-num">3.</span> Design the right engagement</h4>
         <p>
-          Based on your needs, we may provide fractional design leadership, embedded product and UX support, individual
-          coaching,
-          or structured design thinking workshops. Every approach is tailored and intentionally scoped.
+          Based on what you need, that might be fractional design leadership, embedded product and UX support, an AI
+          workshop, or a focused research engagement. Every approach is tailored and intentionally scoped.
         </p>
 
         <h4><span class="step-num">4.</span> Build momentum quickly</h4>
@@ -1425,14 +1551,17 @@
 
       <div class="footer-brand-text">
         <h3>DesignStamp</h3>
-        <p class="tagline">Coaching and strategic design leadership.</p>
+        <p class="tagline">Senior design, research, and product capability.</p>
       </div>
     </div>
 
     <nav class="footer-links">
-  <a class="nav-word footer-link" data-link="#coaching" href="#coaching">Coaching</a>
+  <a class="nav-word footer-link" data-link="#coaching" href="#coaching">Capabilities</a>
   <a class="nav-word footer-link" data-link="#work" href="#work">Work</a>
   <a class="nav-word footer-link" data-link="#about" href="#about">About</a>
+  <a class="nav-word footer-link" data-email data-email-subject="Enquiry from designstamp.com"
+    data-open-contact>Get in touch</a>
+  <a class="footer-contact" data-email data-email-text>email me</a>
 </nav>
 
 
@@ -1509,6 +1638,79 @@
 
 
 
+
+  <!-- ============ PERSISTENT CONTACT ============ -->
+  <div class="contact-overlay" aria-hidden="true"></div>
+  <button type="button" class="contact-launcher" id="contactLauncher" aria-expanded="false"
+    aria-controls="contactPanel" aria-label="Open the contact form">
+    <svg class="contact-launcher-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m2 7 10 6 10-6" />
+    </svg>
+    <span class="contact-launcher-label">Get in touch</span>
+  </button>
+
+  <div class="contact-panel" id="contactPanel" role="dialog" aria-modal="false" aria-labelledby="contactPanelTitle"
+    hidden>
+    <div class="contact-panel-head">
+      <h2 id="contactPanelTitle">Start a conversation</h2>
+      <button type="button" class="contact-close" id="contactClose" aria-label="Close the contact form">&times;</button>
+    </div>
+
+    <form class="contact-form" id="contactForm" novalidate>
+      <label class="contact-field">
+        <span>Name</span>
+        <input type="text" name="name" autocomplete="name" required />
+      </label>
+      <label class="contact-field">
+        <span>Email</span>
+        <input type="email" name="email" autocomplete="email" required />
+      </label>
+      <label class="contact-field">
+        <span>Company <em>optional</em></span>
+        <input type="text" name="company" autocomplete="organization" />
+      </label>
+      <label class="contact-field">
+        <span>What do you need?</span>
+        <textarea name="message" rows="4"
+          placeholder="A team, a leader, or you&rsquo;re not sure yet. All useful." required></textarea>
+      </label>
+
+      <!-- honeypot: bots fill this, people never see it -->
+      <div class="contact-hp" aria-hidden="true">
+        <label>Leave this empty<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <!-- v2 renders its checkbox here. v3 is invisible, so JS hides this and
+           shows the notice below the button instead. -->
+      <div class="contact-recaptcha" id="contactRecaptcha"></div>
+
+      <p class="contact-error" id="contactError" role="alert" hidden></p>
+      <p class="contact-error-fallback" id="contactErrorFallback" hidden>
+        <!-- Real mailto in the href so it still works if the JS handler doesn't.
+             The handler upgrades it to a version prefilled with what was typed. -->
+        <a data-email data-email-subject="Enquiry from designstamp.com"
+          data-mailto-fallback>Send it as an email instead →</a>
+      </p>
+      <button type="submit" class="contact-submit" id="contactSubmit">Send</button>
+      <p class="contact-alt">Or <a data-email data-email-text>email me</a> directly.</p>
+
+      <!-- Required by Google's terms whenever the reCAPTCHA badge is hidden.
+           Shown only in v3 mode, since v2's visible checkbox carries its own. -->
+      <p class="contact-legal" id="contactLegal" hidden>
+        Protected by reCAPTCHA. Google's
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and
+        <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a> apply.
+      </p>
+    </form>
+
+    <div class="contact-success" id="contactSuccess" role="status" hidden>
+      <p><strong>Got it.</strong></p>
+      <p>I read these myself and I&rsquo;ll come back to you within a day or two.</p>
+      <button type="button" class="contact-reset" id="contactReset">Send another</button>
+    </div>
+  </div>
 
   <script src="main.js"></script>
 

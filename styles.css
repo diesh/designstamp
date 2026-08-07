@@ -45,6 +45,17 @@ html {
         padding-bottom: 0 !important;
         margin-bottom: 0 !important;
       }
+
+      /* Standard safety net against stray horizontal scroll. The actual
+         cause (the hero sentence's unscaled layout width - see .sentenceRow
+         below) is fixed at the source now. max-width:100vw on html/body was
+         tried here too, but that combined badly with the fixed-position hero
+         elements (whose containing block is the viewport, not html/body)
+         and made the sideways rubber-banding worse, not better - dropped. */
+      html,
+      body {
+        overflow-x: hidden;
+      }
     }
 
     /* ====== MASTHEAD / HERO ====== */
@@ -59,7 +70,16 @@ html {
   transform-origin: top left;
   z-index: 2;
   overflow: hidden;
-  clip-path: inset(0 0 0 0); 
+  clip-path: inset(0 0 0 0);
+}
+
+/* Once collapsed, this shrinks down to a tiny square sitting right behind
+   the logo (see the JS transform in initHeroAnimation). Its low z-index
+   normally keeps it hidden behind the white page content, but the case
+   overlay's translucent backdrop lets it show through as a stray colored
+   patch. Hide it outright while an overlay is open. */
+body.overlay-open .masthead {
+  opacity: 0;
 }
 
 .masthead::before,
@@ -67,12 +87,29 @@ html {
 [class*="masthead-float-"] {
   content: '';
   position: absolute;
-  width: 45vw; 
+  width: 45vw;
   height: 45vw;
-  border-radius: 50%;
-  will-change: transform;
+  border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%;
+  will-change: transform, border-radius;
   filter: blur(80px); /* Increased blur for smoother blending */
   pointer-events: none;
+  /* multiply darkens wherever two blobs overlap instead of just averaging
+     the colors, which is what reads as depth/shadow rather than flat shapes
+     stacked on top of each other. (screen was tried first and did the
+     opposite - it lightens overlaps, which washed the red out and killed
+     contrast against the white logo/text.) */
+  mix-blend-mode: multiply;
+}
+
+/* .masthead-float-1/2/3 have no matching elements in most layouts this CSS
+   was written for elsewhere on the web, but here they do (see index.html) -
+   these three used to be dead code. Hiding them on mobile keeps the phone
+   experience exactly as already tested (2 blobs, static); desktop gets the
+   full 5-layer depth. */
+@media (max-width: 899px) {
+  [class*="masthead-float-"] {
+    display: none;
+  }
 }
 
 /* TOP CENTER - Subtle Light Highlight */
@@ -80,7 +117,7 @@ html {
   top: -20vw;
   left: 25vw;
   background: radial-gradient(circle, #db4d42 0%, transparent 75%);
-  animation: float1 23s ease-in-out infinite;
+  animation: float1 23s ease-in-out infinite, blob1 17s ease-in-out infinite;
 }
 
 /* MIDDLE LEFT - Deep Shadow */
@@ -90,8 +127,8 @@ html {
   top: 15vh;
   left: -10vw;
   background: radial-gradient(circle, #8a241c 0%, transparent 70%);
-  animation: float2 19s ease-in-out infinite;
-  animation-delay: -5s;
+  animation: float2 19s ease-in-out infinite, blob2 14s ease-in-out infinite;
+  animation-delay: -5s, -6s;
 }
 
 /* BOTTOM CENTER - Very Deep Core */
@@ -101,8 +138,8 @@ html {
   bottom: -20vw;
   left: 25vw;
   background: radial-gradient(circle, #5e140f 0%, transparent 70%);
-  animation: float3 27s ease-in-out infinite;
-  animation-delay: -8s;
+  animation: float3 27s ease-in-out infinite, blob3 21s ease-in-out infinite;
+  animation-delay: -8s, -4s;
 }
 
 /* MIDDLE RIGHT - Medium Shadow */
@@ -112,8 +149,8 @@ html {
   top: 25vh;
   right: -8vw;
   background: radial-gradient(circle, #a32d24 0%, transparent 65%);
-  animation: float1 31s ease-in-out infinite;
-  animation-delay: -12s;
+  animation: float1 31s ease-in-out infinite, blob1 19s ease-in-out infinite;
+  animation-delay: -12s, -9s;
 }
 
 /* TOP RIGHT - Soft Warm Glow */
@@ -123,27 +160,70 @@ html {
   top: -10vw;
   right: 5vw;
   background: radial-gradient(circle, #bd3a30 0%, transparent 70%);
-  animation: float2 21s ease-in-out infinite;
-  animation-delay: -3s;
+  animation: float2 21s ease-in-out infinite, blob2 16s ease-in-out infinite;
+  animation-delay: -3s, -11s;
 }
 
-/* Keep your existing Keyframe animations for visible drifting */
+/* These are five permanently-animating blur(80px) radial gradients. filter:
+   blur() is one of the most expensive things a mobile GPU can composite, and
+   these run indefinitely regardless of scroll position or screen size.
+   Static gradients read almost identically at a glance, so drop the
+   animation on mobile and for anyone who's asked for reduced motion. Desktop
+   keeps the drifting effect. */
+@media (max-width: 899px), (prefers-reduced-motion: reduce) {
+  .masthead::before,
+  .masthead::after,
+  [class*="masthead-float-"] {
+    animation: none;
+  }
+}
+
+/* float1/2/3 handle position + scale drift, same as before. blob1/2/3 morph
+   border-radius alongside them on desktop - four asymmetric values instead
+   of a fixed circle, easing between different lopsided shapes. That's what
+   actually reads as organic/amoeba movement rather than a circle sliding
+   and pulsing; a perfect circle changing size just looks like a circle
+   changing size, however smoothly it's eased. */
+/* Travel distance roughly doubled from the first pass, plus a slow rotate -
+   turning an asymmetric blob shape reads as it twisting/wobbling, not just
+   sliding, which is a big part of what makes it look alive rather than a
+   shape on a track. float2 and float3 (the darkest layers: .masthead::after
+   and .masthead-float-1) get the widest range since those are the ones that
+   most needed to visibly move. */
 @keyframes float1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(4vw, -3vh) scale(1.05); }
-  50% { transform: translate(-2vw, 4vh) scale(0.95); }
-  75% { transform: translate(3vw, 2vh) scale(1.02); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  25% { transform: translate(8vw, -6vh) rotate(8deg) scale(1.08); }
+  50% { transform: translate(-5vw, 8vh) rotate(-6deg) scale(0.92); }
+  75% { transform: translate(6vw, 4vh) rotate(5deg) scale(1.04); }
 }
 
 @keyframes float2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-5vw, 4vh) scale(1.07); }
-  66% { transform: translate(4vw, -5vh) scale(0.93); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(-10vw, 9vh) rotate(-10deg) scale(1.12); }
+  66% { transform: translate(9vw, -10vh) rotate(9deg) scale(0.88); }
 }
 
 @keyframes float3 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(6vw, 8vh) scale(1.1); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  35% { transform: translate(12vw, 10vh) rotate(12deg) scale(1.15); }
+  70% { transform: translate(-8vw, -6vh) rotate(-8deg) scale(0.9); }
+}
+
+@keyframes blob1 {
+  0%, 100% { border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%; }
+  33%      { border-radius: 60% 40% 35% 65% / 55% 65% 35% 45%; }
+  66%      { border-radius: 35% 65% 55% 45% / 40% 30% 70% 60%; }
+}
+
+@keyframes blob2 {
+  0%, 100% { border-radius: 55% 45% 40% 60% / 35% 55% 45% 65%; }
+  50%      { border-radius: 38% 62% 60% 40% / 60% 40% 60% 40%; }
+}
+
+@keyframes blob3 {
+  0%, 100% { border-radius: 48% 52% 55% 45% / 50% 45% 55% 50%; }
+  40%      { border-radius: 65% 35% 42% 58% / 40% 60% 40% 60%; }
+  70%      { border-radius: 40% 60% 65% 35% / 60% 35% 65% 40%; }
 }
 
     /* === LOGO: Always on top, fixed size === */
@@ -182,6 +262,34 @@ html {
       filter: none !important;
     }
 
+    /* The logo's z-index (9999) keeps it above ordinary page content, but
+       that also puts it above the case-study overlay. #overlay lives inside
+       <main>, which has its own position:relative + z-index:5, forming a
+       separate stacking context - #overlay's z-index:2000 only competes
+       within that context and is capped at "5" from the page's point of
+       view. So the logo has to drop below 5, not just below 2000, to
+       actually sit behind the overlay instead of on top of it. (The earlier
+       attempt at this looked broken because of the masthead patch bug,
+       fixed separately above - that's resolved now, so this works cleanly.) */
+    body.overlay-open .logoBox {
+      z-index: 1 !important;
+    }
+
+    /* Same problem as the case-study overlay above, but the contact panel
+       (.contact-panel, z-index:91) and its backdrop (.contact-overlay,
+       z-index:89) both live outside <main>, so there's no nested stacking
+       context to drop below this time - the logo's 9999 just directly beats
+       91. Dropping z-index here would put the logo behind .contact-overlay
+       too, which is a translucent white backdrop, so it'd show through
+       tinted rather than actually hidden (the same visual bug the earlier
+       z-index attempt on the overlay case caused). Hiding it outright avoids
+       that. */
+    body.contact-open .logoBox,
+    body.contact-open .logoBox * {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
     /* ====== HERO SENTENCE ====== */
     .sentenceRow {
       font-family: 'Outfit', sans-serif;
@@ -201,31 +309,46 @@ html {
     }
     
     @media (max-width: 899px) {
+      /* Desktop's 75vh hero leaves huge dead red space on a phone screen,
+         since there's far less content to fill it with. Shrunk further down
+         in this file, after the base rules that would otherwise win the
+         source-order tiebreak against these same-specificity selectors. */
+      :root {
+        --heroHvh: 54;
+      }
+
       .sentenceRow {
         font-size: clamp(1.8rem, 7.2vw, 4rem);
       }
+
+      /* See the comment on the .sentence-clip markup in index.html. This
+         wrapper is always exactly viewport-sized (inset:0, no transform of
+         its own), so overflow:hidden here clips in real screen space -
+         after .sentenceRow's scale-down has already happened - instead of
+         cutting the text short before it gets shrunk to fit. */
+      .sentence-clip {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 35;
+      }
     }
 
+/* The gradient text treatment lives on the individual spans, NOT here.
+   When background-clip:text sits on this wrapper, the gradient is painted by
+   this element and masked by the glyphs of the whole subtree. Paint that
+   happens at the parent ignores a child's overflow:hidden and a child's
+   opacity, so .nav-rest could neither clip nor fade: the letters kept
+   rendering at full strength after their box had collapsed, and the next word
+   slid straight over them. Moving the treatment down one level gives every
+   span its own paint, so both properties work again. */
 .sentence-inner {
   display: inline-block;
-  background: linear-gradient(
-    90deg,
-    #f0dad3 0%,    /* Start and End match perfectly for a seamless loop */
-    #df6960 25%,   
-    #c76760 50%,   /* Deepest point in the middle */
-    #ea7870 75%,   
-    #f0dad3 100%   
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  /* Slowed down to 24s for a peaceful, drifting feel */
-  animation: gradientFlow 24s linear infinite; 
   line-height: 1.1;
   font-weight: 700;
   /* Prevents any 'flicker' on high-refresh monitors */
-  backface-visibility: hidden; 
+  backface-visibility: hidden;
 }
 
     @keyframes gradientFlow {
@@ -242,20 +365,54 @@ html {
       display: inline-block;
       vertical-align: middle;
       line-height: 1.1;
+      /* Each span paints its own gradient. All of them share one animation
+         name and duration, so they stay in step and read as a single moving
+         wash across the sentence. */
+      background: linear-gradient(
+        90deg,
+        #f0dad3 0%,    /* Start and End match for a seamless loop */
+        #df6960 25%,
+        #c76760 50%,   /* Deepest point in the middle */
+        #ea7870 75%,
+        #f0dad3 100%
+      );
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientFlow 24s linear infinite;
+      backface-visibility: hidden;
+    }
+
+    /* Same trade as headingGradient above: this runs continuously on every
+       word of the hero sentence, on top of the hero's own per-frame scroll
+       math. Freeze it on mobile and for reduced-motion. */
+    @media (max-width: 899px), (prefers-reduced-motion: reduce) {
+      .nav-rest,
+      .nav-word {
+        animation: none;
+      }
     }
 
     .nav-rest {
-      margin-right: 0.2em;
+      /* Matches the value main.js's applyFade() sets inline on load/scroll -
+         this is just the fallback for the brief moment before that JS runs. */
+      margin-right: 0.08em;
       overflow: hidden;
       white-space: nowrap;
       color: inherit;
       --rest-fade: 0;
       opacity: calc(1 - var(--rest-fade));
-      transition: opacity 0.3s ease;
+      /* No transition here on purpose. --rest-fade and max-width are both
+         written per scroll frame by applyFade() in main.js, so a CSS
+         transition just makes the opacity lag its own box by 300ms. */
+      transition: none;
     }
 
     .nav-word {
-      margin-left: 0.25em;
+      /* Matches the value main.js's applyFade() sets inline on load/scroll -
+         this is just the fallback for the brief moment before that JS runs. */
+      margin-left: 0.08em;
       margin-right: 0.1em;
       pointer-events: auto;
       cursor: pointer;
@@ -272,8 +429,10 @@ html {
     .nav-word.active {
       background: none !important;
       -webkit-background-clip: initial !important;
+      background-clip: initial !important;
       -webkit-text-fill-color: #000 !important;
       color: #000 !important;
+      animation: none !important;
       text-decoration: none;
     }
 
@@ -283,17 +442,74 @@ html {
       text-underline-offset: 3px;
     }
 
+    /* The desktop gradient's palest stop (#f0dad3) is too close to the red
+       masthead to read on a phone. Brighten the whole ramp for mobile only;
+       desktop keeps its subtler tones. Placed after the base .nav-rest,
+       .nav-word rule on purpose: same specificity, so source order decides,
+       and this has to come later to win. */
+    @media (max-width: 899px) {
+      .nav-rest,
+      .nav-word {
+        background: linear-gradient(
+          90deg,
+          #ffffff 0%,
+          #ffe6e0 25%,
+          #ffd2c8 50%,
+          #ffe6e0 75%,
+          #ffffff 100%
+        );
+        background-size: 200% 100%;
+        /* The shorthand above resets background-clip to its default
+           (border-box), which is why this has to be reasserted here, or the
+           gradient paints as a solid box instead of being masked by the
+           glyphs, exactly what showed up as blank pink/white bars. */
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* Once the hero collapses, the sentence sits on white (not red)
+         behind the nav. The bright gradient above nearly disappears there,
+         which is why only the currently-active word (forced solid black,
+         see .nav-word.active) was reading. Higher specificity than the rule
+         above, so it wins regardless of source order. */
+      body.hero-scrolling .nav-rest,
+      body.hero-scrolling .nav-word:not(.active) {
+        background: linear-gradient(
+          90deg,
+          #d9362b 0%,
+          #fb5449 50%,
+          #d9362b 100%
+        );
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    }
 
 
 
     /* ====== NAV SHIELD ====== */
+    /* This exists to keep page content from showing through behind the nav
+       words as they collapse into the top corner. A flat white rectangle
+       with a hard bottom edge read as an accidental clipping box - content
+       visibly cut off, not faded. A gradient down to transparent plus a
+       light blur on what's still underneath reads as a deliberate scrim
+       instead, the same treatment already used for body.overlay-open
+       #navShield elsewhere in this file. */
     #navShield {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 160px;
-      background: #fff;
+      background: linear-gradient(to bottom,
+          rgba(255, 255, 255, 0.98) 0%,
+          rgba(255, 255, 255, 0.98) 55%,
+          rgba(255, 255, 255, 0) 100%);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       opacity: 0;
       transition: opacity .30s ease;
       pointer-events: none;
@@ -305,6 +521,20 @@ html {
     @media (min-width: 900px) {
       #navShield {
         width: 320px;
+      }
+    }
+
+    @media (max-width: 899px) {
+      /* 100vw has repeatedly not matched the true visible width on this
+         page's mobile Safari sessions (see the horizontal-scroll fixes
+         elsewhere in this file) - it was leaving a sliver of the red hero
+         visible past the shield's right edge as it scrolled up, an
+         unintentional and displeasing shape. left:0 + right:0 anchors both
+         edges directly to the actual viewport instead of trusting a vw unit
+         that's proven unreliable here, so there's no gap on either side. */
+      #navShield {
+        width: auto;
+        right: 0;
       }
     }
 
@@ -394,9 +624,28 @@ html {
         padding: 0 0.5rem;
         margin-bottom: 0;
       }
-      
+
       #about {
         padding-bottom: 2rem;
+      }
+    }
+
+    /* main has 12px of left/right padding on mobile (see the
+       max-width:899px block above), but the white background lives on
+       #coaching/#work/#about INSIDE that padding, not on main itself.
+       That left main's own gutter transparent, letting the red hero
+       layer behind it show through as a stripe on both edges while
+       scrolling from the hero into the first section.
+       This must come AFTER the unconditional "margin: 0 auto" rule
+       above (same specificity, later source wins) or it gets silently
+       cancelled back to auto - that's why the first attempt at this
+       exact fix had no visible effect. */
+    @media (max-width: 899px) {
+      #coaching,
+      #work,
+      #about {
+        margin-left: -12px;
+        margin-right: -12px;
       }
     }
 
@@ -509,6 +758,19 @@ html {
       -webkit-text-fill-color: transparent;
       background-size: 300%;
       animation: headingGradient 12s ease infinite;
+    }
+
+    /* headingGradient runs on every h1, .hq1, and .subhead on the page (not
+       just the hero), permanently repainting the gradient layer behind every
+       heading. Same trade as the masthead blobs above: freeze it on mobile
+       and for reduced-motion, keep the drift on desktop. The gradient colors
+       still show, just static. */
+    @media (max-width: 899px), (prefers-reduced-motion: reduce) {
+      h1,
+      .hq1,
+      .subhead {
+        animation: none;
+      }
     }
 
     p {
@@ -1142,6 +1404,78 @@ html {
       transform: translateY(0);
     }
 
+    /* Case-study panel is a centered card with breathing room on desktop;
+       on a phone that same treatment leaves cramped margins on both sides.
+       Go fullscreen instead, mobile only. Placed after both duplicate
+       #overlay/.panel blocks in this file so it reliably wins the cascade
+       regardless of which one a future edit touches. */
+    @media (max-width: 899px) {
+      #overlay {
+        padding: 0;
+        /* #overlay was still flex-centering its content. Centering a panel
+           that's exactly as tall as the viewport pushes its top out of view
+           by as much as its bottom, which is what was cutting the header
+           off - the panel needs to just fill the overlay, not be centered
+           inside it. */
+        align-items: stretch;
+        justify-content: stretch;
+      }
+
+      #overlay .panel {
+        width: 100vw;
+        max-width: 100vw;
+        /* 100vh includes the area behind Safari's collapsible toolbar, so
+           it's often taller than what's actually visible. 100dvh tracks the
+           real visible viewport; vh stays as a fallback for older browsers
+           that don't support dvh. */
+        height: 100vh;
+        height: 100dvh;
+        max-height: 100vh;
+        max-height: 100dvh;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* The header needs to read unmistakably as a dismissable modal bar on
+         a phone, not just text with a small × floating in the corner. */
+      #overlay .panel-head {
+        padding: 14px 16px;
+        padding-top: max(14px, env(safe-area-inset-top));
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+
+      #overlay .panel-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Was a bare 30px × floating top-right - easy to miss as the way out
+         of a fullscreen view, and under the ~44px touch-target minimum.
+         Give it a visible button shape so it reads as "tap here to close". */
+      #overlay .panel-head .close,
+      #overlay #closeBtn {
+        position: static !important;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        font-size: 22px !important;
+        border-radius: 50% !important;
+        background: #f4f4f4 !important;
+        color: #444 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 !important;
+        flex-shrink: 0;
+      }
+
+      #overlay .panel-title {
+        max-width: calc(100% - 52px);
+      }
+    }
+
     body.overlay-open #navShield {
       background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85) 85%, rgba(255, 255, 255, 0.1) 100%), rgba(0, 0, 0, 0.3);
       /* you can tune the black alpha as desired */
@@ -1277,21 +1611,6 @@ html {
 
     /* === Restore all .case__quote, badge, and image styles as in previous output === */
 
-
-
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     /* === COACHING SECTIONS: BOXES, COLUMNS, EXPANSIONS === */
 
     /* Container for a grid or column stack of coaching features */
@@ -1337,16 +1656,23 @@ html {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       position: relative;
       cursor: pointer;
-      transition: all 0.5s ease;
+      /* Was `all`, which animated border-width and forced layout on every
+         hover frame. Only paint and transform properties belong here. */
+      transition: transform 0.35s ease, box-shadow 0.35s ease, outline-color 0.25s ease;
       overflow: visible;
       z-index: 1;
       padding-bottom: 70px;
+      outline: 8px solid transparent;
+      outline-offset: -8px;
     }
 
-    .coaching-box:hover {
+    /* The hover ring used to be `border: 8px solid`, which grew the border from
+       1px and shifted the box and everything in it by 7px on every hover. An
+       outline drawn inward gives the identical look and costs no layout. */
+    .coaching-box:hover,
+    .coaching-box:focus-visible {
       background: #fff;
-      border: 8px solid #fb5449;
-
+      outline-color: #fb5449;
       box-shadow: 0 4px 14px rgba(251, 84, 73, 0.09),
         0 1.5px 6px rgba(0, 0, 0, 0.06);
       transform: translateY(-2px) scale(1.015);
@@ -1437,8 +1763,9 @@ html {
     }
 
     .coaching-box.active .extra {
-      max-height: none;
-      /* let content define height */
+      /* max-height is set in px by openBox() in main.js and released to 'none'
+         once the transition finishes. It is deliberately NOT set here: going
+         from 0 to `none` is not animatable, which is why this used to snap. */
       opacity: 1;
       transform: translateY(0);
       padding: 0.7rem 0.6rem 0.8rem 0.6rem;
@@ -1488,7 +1815,11 @@ html {
       }
     }
 
-
+    @media (prefers-reduced-motion: reduce) {
+      .coaching-box .chevron-indicator {
+        animation: none;
+      }
+    }
 
     /* === COACHING COLUMNS (legacy) === */
     .coaching-columns {
@@ -1693,8 +2024,27 @@ html {
       line-height: 1.4rem;
     }
 
+    /* Capabilities/Work/About/Get in touch share the .nav-word class with
+       the hero sentence, which paints itself via an animated gradient
+       (background-clip:text + text-fill-color:transparent). That gradient
+       doesn't touch `color`, so it silently overrode the plain color above
+       and animated in the footer too. Scoped to .footer-link specifically
+       so the separate "email me" link (not a .nav-word) is untouched. */
+    footer .footer-links a.footer-link {
+      background: none !important;
+      -webkit-background-clip: initial !important;
+      background-clip: initial !important;
+      -webkit-text-fill-color: #fb5449 !important;
+      animation: none !important;
+    }
+
     footer .footer-links a:hover {
       text-decoration: underline;
+    }
+
+    footer .footer-links a.footer-contact {
+      margin-top: 0.8rem;
+      color: #444;
     }
 
     footer .copyright {
@@ -1881,8 +2231,19 @@ html {
   align-items: center;
   text-align: center;
   /* Increased gap stops it from looking squat */
-  gap: 10px; 
+  gap: 10px;
   pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+@media (max-width: 899px) {
+  /* The hero sentence's collapse path passes close to this tag's corner.
+     It only matters at rest, so drop it out of the way as soon as
+     scrolling starts (see the 'hero-scrolling' toggle in main.js). */
+  body.hero-scrolling .anniversary-tag {
+    opacity: 0;
+  }
 }
 
 .anniv-accent {
@@ -1923,3 +2284,342 @@ html {
 .anniversary-tag.on-white .anniv-years {
   color: #d63d32;
 }
+    /* ==================== PERSISTENT CONTACT ==================== */
+    /* Replaces the Tidio bubble. Same affordance, same corner, but the
+       submission is ours and there is no third-party script on the page. */
+
+    .contact-launcher {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 90;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.25rem;
+      border: none;
+      border-radius: 999px;
+      background: #fb5449;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(251, 84, 73, 0.32), 0 2px 6px rgba(0, 0, 0, 0.12);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.2s ease;
+    }
+
+    .contact-launcher:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 26px rgba(251, 84, 73, 0.4), 0 3px 8px rgba(0, 0, 0, 0.14);
+    }
+
+    .contact-launcher:focus-visible {
+      outline: 3px solid #111;
+      outline-offset: 3px;
+    }
+
+    /* When the panel is open the launcher gets out of the way rather than
+       sitting on top of the form on a short viewport. */
+    .contact-launcher[aria-expanded="true"] {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .contact-panel {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 91;
+      width: min(370px, calc(100vw - 44px));
+      max-height: min(640px, calc(100vh - 44px));
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 1.25rem 1.25rem 1.1rem;
+      font-family: 'Inter', sans-serif;
+      transform-origin: bottom right;
+      animation: contactPanelIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .contact-panel[hidden] { display: none; }
+
+    /* Dim the rest of the page behind the open contact form so the panel
+       stands out, without blurring the text underneath. Sits above content
+       but below the launcher (90) and panel (91). */
+    .contact-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.7);
+      z-index: 89;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    body.contact-open .contact-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @keyframes contactPanelIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .contact-panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .contact-panel-head h2 {
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #111;
+    }
+
+    .contact-close {
+      flex: 0 0 auto;
+      /* Was 30x30, under the ~44px touch-target minimum, and it's the only
+         tap-to-close affordance in the panel besides tapping outside it. */
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 10px;
+      background: #f4f4f4;
+      color: #444;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .contact-close:hover { background: #ececec; color: #111; }
+    .contact-close:focus-visible { outline: 3px solid #fb5449; outline-offset: 2px; }
+
+    .contact-field { display: block; margin-bottom: 0.75rem; }
+
+    .contact-field > span {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .contact-field > span em {
+      font-style: normal;
+      font-weight: 400;
+      color: #999;
+    }
+
+    .contact-field input,
+    .contact-field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.6rem 0.7rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+      font-family: inherit;
+      /* Below 16px, iOS Safari auto-zooms the whole page in when this field
+         is focused (which openPanel() does automatically on open). On a
+         fixed-position panel that zoom sometimes doesn't reset cleanly on
+         close, leaving the page zoomed in with horizontal scroll afterward.
+         16px is the threshold where iOS stops doing that. */
+      font-size: 16px;
+      color: #111;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .contact-field textarea { resize: vertical; min-height: 84px; }
+
+    .contact-field input:focus,
+    .contact-field textarea:focus {
+      outline: none;
+      border-color: #fb5449;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(251, 84, 73, 0.14);
+    }
+
+    .contact-field input[aria-invalid="true"],
+    .contact-field textarea[aria-invalid="true"] {
+      border-color: #d33;
+      background: #fff8f8;
+    }
+
+    /* Honeypot. Off-screen rather than display:none, which some bots skip. */
+    .contact-hp {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .contact-error {
+      margin: 0 0 0.6rem;
+      font-size: 0.85rem;
+      color: #c0271c;
+    }
+
+    .contact-error[hidden] { display: none; }
+
+    .contact-submit {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 999px;
+      background: #fb5449;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .contact-submit:hover:not(:disabled) { background: #e8483e; transform: translateY(-1px); }
+    .contact-submit:disabled { opacity: 0.6; cursor: progress; }
+    .contact-submit:focus-visible { outline: 3px solid #111; outline-offset: 2px; }
+
+    .contact-alt {
+      margin: 0.7rem 0 0;
+      font-size: 0.8rem;
+      color: #777;
+      text-align: center;
+    }
+
+    .contact-alt a { color: #fb5449; }
+
+    .contact-success { text-align: left; }
+    .contact-success[hidden] { display: none; }
+    .contact-success p { margin: 0 0 0.5rem; font-size: 0.95rem; color: #333; }
+
+    .contact-reset {
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.9rem;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .contact-reset:hover { background: #fafafa; }
+
+    @media (max-width: 560px) {
+      .contact-launcher { right: 14px; bottom: 14px; padding: 0.8rem 1.05rem; }
+      .contact-launcher-label { font-size: 0.9rem; }
+      .contact-panel { right: 12px; left: 12px; bottom: 12px; width: auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .contact-panel { animation: none; }
+      .contact-launcher, .contact-submit { transition: none; }
+    }
+
+    /* Inline offer links in the Capabilities subhead. They scroll to the
+       matching box and open it, so they need to read as interactive without
+       shouting over the sentence they sit inside. */
+    .offer-link {
+      color: inherit;
+      text-decoration: none;
+      font-weight: 700;
+      white-space: nowrap;
+      background-image: linear-gradient(#fb5449, #fb5449);
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      background-size: 100% 2px;
+      padding-bottom: 2px;
+      transition: background-size 0.3s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s ease;
+    }
+
+    .offer-link:hover,
+    .offer-link:focus-visible {
+      color: #fb5449;
+      background-size: 100% 100%;
+      background-image: linear-gradient(rgba(251, 84, 73, 0.14), rgba(251, 84, 73, 0.14));
+    }
+
+    .offer-link:focus-visible { outline: 2px solid #fb5449; outline-offset: 3px; }
+
+    /* Brief highlight on the box an offer link just opened, so the eye lands in
+       the right place after the scroll. */
+    .coaching-box.just-targeted {
+      animation: boxTargeted 1.4s ease-out;
+    }
+
+    @keyframes boxTargeted {
+      0%, 100% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+      25%      { box-shadow: 0 0 0 4px rgba(251, 84, 73, 0.55), 0 6px 18px rgba(251, 84, 73, 0.18); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .offer-link { transition: none; }
+      .coaching-box.just-targeted { animation: none; }
+    }
+
+    .contact-error-fallback {
+      margin: -0.3rem 0 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    .contact-error-fallback[hidden] { display: none; }
+    .contact-error-fallback a { color: #fb5449; font-weight: 600; }
+
+    /* reCAPTCHA v2 renders a fixed 304x78 widget inside an iframe. Nothing in
+       there can be styled from here, so the job is just to give it a stable
+       slot: reserve the height up front and the panel won't jump when the
+       widget finishes loading, or when Google swaps in a taller state.
+       The panel's inner width is 330px, so at normal sizes it fits unscaled. */
+    /* min-height, not height: if Google ever does render its taller expired or
+       error state, the slot grows and pushes the Send button down instead of
+       the widget overlapping it. A small jump beats an overlap. */
+    .contact-recaptcha {
+      margin: 0 0 0.9rem;
+      min-height: 78px;
+    }
+
+    /* Only scale where 304px genuinely doesn't fit. transform doesn't shrink
+       the layout box, so the container height is set to match or it leaves a
+       dead gap underneath. */
+    @media (max-width: 380px) {
+      .contact-recaptcha { min-height: 64px; }
+      .contact-recaptcha > div {
+        transform: scale(0.82);
+        transform-origin: 0 0;
+      }
+    }
+
+    /* The v3 badge floats bottom-right by default, exactly where the contact
+       launcher sits. Hidden with visibility rather than display, which is what
+       Google's docs specify; display:none can stop the challenge working.
+       Hiding it is only permitted if the notice below is shown, which it is. */
+    .grecaptcha-badge {
+      visibility: hidden;
+    }
+
+    .contact-recaptcha[hidden] { display: none; }
+
+    .contact-legal {
+      margin: 0.55rem 0 0;
+      font-size: 0.72rem;
+      line-height: 1.45;
+      color: #999;
+      text-align: center;
+    }
+
+    .contact-legal[hidden] { display: none; }
+    .contact-legal a { color: #999; text-decoration: underline; }
+    .contact-legal a:hover { color: #fb5449; }
