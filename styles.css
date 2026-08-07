@@ -2226,15 +2226,19 @@ body.overlay-open .masthead {
   top: 95px; /* Added 5px to separate further from logo */
   width: var(--boxSize);
   z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  /* All three children (accent, text, accent) are stacked in the same grid
+     cell so they share one exact center point - that's what lets the lines
+     orbit AROUND the number on hover instead of just spinning in place. */
+  display: grid;
+  place-items: center;
   text-align: center;
-  /* Increased gap stops it from looking squat */
-  gap: 10px;
   pointer-events: none;
   opacity: 1;
   transition: opacity 0.25s ease;
+}
+
+.anniversary-tag > * {
+  grid-area: 1 / 1;
 }
 
 @media (max-width: 899px) {
@@ -2252,6 +2256,72 @@ body.overlay-open .masthead {
   background: linear-gradient(90deg, #f0dad3, #df6960, #c76760, #ea7870, #f0dad3);
   background-size: 200% auto;
   animation: borderGradientFlow 8s linear infinite;
+  /* .anniversary-tag itself is pointer-events:none (it sits over the hero
+     and shouldn't block clicks/scroll), so the accent lines and the
+     "25 YEARS" text opt back in individually - that's enough for :hover
+     to register on them without making the whole fixed corner clickable. */
+  pointer-events: auto;
+  /* Resting position: both lines sit directly above/below the shared
+     center (set up by the grid stack above), framing the number exactly
+     like the old flex layout did, just via transform instead of gap. */
+  transform: translateY(-24px);
+}
+
+.anniversary-tag > .anniv-accent:last-child {
+  transform: translateY(24px);
+}
+
+.anniv-text {
+  pointer-events: auto;
+  /* Keeps "25 YEARS" legible while a line orbits past behind/in front of it,
+     since both accents and the text share the same grid cell. */
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes annivOrbit {
+  from {
+    transform: rotate(0deg) translateY(-24px);
+  }
+  to {
+    transform: rotate(360deg) translateY(-24px);
+  }
+}
+
+@keyframes annivOrbitBottom {
+  from {
+    transform: rotate(0deg) translateY(24px);
+  }
+  to {
+    transform: rotate(360deg) translateY(24px);
+  }
+}
+
+/* (hover: hover) and (pointer: fine) scopes this to devices with a real
+   mouse. Touchscreens don't fire a "hover off" event on tap - :hover just
+   latches on after the first tap and never clears, which was leaving the
+   orbit spinning forever on mobile. Restricting it to true hover-capable
+   pointers sidesteps that entirely instead of trying to fake a timeout. */
+@media (hover: hover) and (pointer: fine) {
+  .anniversary-tag:hover .anniv-accent {
+    animation: borderGradientFlow 8s linear infinite, annivOrbit 1.6s linear infinite;
+  }
+
+  .anniversary-tag:hover > .anniv-accent:last-child {
+    animation: borderGradientFlow 8s linear infinite, annivOrbitBottom 1.6s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .anniversary-tag:hover .anniv-accent,
+    .anniversary-tag:hover > .anniv-accent:last-child {
+      animation: borderGradientFlow 8s linear infinite;
+      transform: translateY(-24px);
+    }
+
+    .anniversary-tag:hover > .anniv-accent:last-child {
+      transform: translateY(24px);
+    }
+  }
 }
 
 .anniv-text {
