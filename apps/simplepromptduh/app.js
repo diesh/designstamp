@@ -332,10 +332,12 @@ speedLive.addEventListener("input", () => {
 
 mirrorToggle.addEventListener("change", () => {
   saveSettings({ mirror: mirrorToggle.checked });
+  applyTextFormatting();
 });
 
 flipToggle.addEventListener("change", () => {
   saveSettings({ flip: flipToggle.checked });
+  applyTextFormatting();
 });
 
 countdownToggle.addEventListener("change", () => {
@@ -377,6 +379,10 @@ function applyTextFormatting() {
     textPreview.textContent = docText
       ? docText.slice(0, 200)
       : "The quick brown fox jumps over the lazy dog. Your script will scroll and look like this.";
+
+    const scaleX = mirrorToggle.checked ? -1 : 1;
+    const scaleY = flipToggle.checked ? -1 : 1;
+    textPreview.style.transform = `scale(${scaleX}, ${scaleY})`;
   }
 }
 
