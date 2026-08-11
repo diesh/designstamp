@@ -386,6 +386,15 @@ button, input {
   text-align: center;
 }
 
+.hint-left {
+  text-align: left;
+}
+
+.source-or {
+  font-size: 13px;
+  color: #666;
+}
+
 .footer-links {
   display: flex;
   align-items: center;
