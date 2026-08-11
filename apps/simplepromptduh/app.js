@@ -9,6 +9,10 @@ const GOOGLE_CLIENT_ID = "884631834825-8rf9ej6h5ivo4gqm83llko84u2dp4osn.apps.goo
 // with the Google Picker API enabled). Different from the OAuth Client ID above.
 const GOOGLE_API_KEY = "AIzaSyD_UrWapDTFcl1Vgp1IvfR7GW22JIkT1BI";
 
+// Cloud project number (the numeric prefix of GOOGLE_CLIENT_ID). Required by
+// Picker for drive.file grants to actually attach to the picked file.
+const GOOGLE_APP_ID = "884631834825";
+
 // drive.file: only grants access to files the user explicitly picks via
 // Google Picker below, nothing else in their Drive.
 const SCOPE = "https://www.googleapis.com/auth/drive.file";
@@ -233,6 +237,7 @@ function openPicker() {
     .addView(view)
     .setOAuthToken(accessToken)
     .setDeveloperKey(GOOGLE_API_KEY)
+    .setAppId(GOOGLE_APP_ID)
     .setOrigin(window.location.protocol + "//" + window.location.host)
     .setCallback((data) => {
       if (data.action === google.picker.Action.PICKED) {
