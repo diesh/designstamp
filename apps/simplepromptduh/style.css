@@ -789,6 +789,72 @@ button, input {
   -webkit-touch-callout: none;
 }
 
+/* Formatted Google Doc content (headings/bold/italic/underline/lists).
+   Conventions borrowed from paper scripts: headings read as section/segment
+   breaks (underlined, extra air around them so the eye can tell a new bit
+   is starting); bold reads as "say this louder/slower"; italic reads as an
+   aside/direction rather than dialogue, so it's dimmed down a notch. */
+#prompter-text p {
+  margin: 0 0 0.6em;
+}
+
+#prompter-text h1,
+#prompter-text h2,
+#prompter-text h3,
+#prompter-text h4,
+#prompter-text h5,
+#prompter-text h6 {
+  margin: 1.1em 0 0.5em;
+  padding-bottom: 0.12em;
+  border-bottom: 3px solid #ffd600;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+#prompter-text h1:first-child,
+#prompter-text h2:first-child,
+#prompter-text h3:first-child {
+  margin-top: 0;
+}
+
+#prompter-text strong,
+#prompter-text b {
+  color: #ffd600;
+  font-weight: 900;
+}
+
+#prompter-text em,
+#prompter-text i {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+#prompter-text u {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 3px;
+}
+
+#prompter-text ul,
+#prompter-text ol {
+  text-align: left;
+  margin: 0.6em auto;
+  padding-left: 1.1em;
+}
+
+#prompter-text li {
+  margin-bottom: 0.4em;
+}
+
+#prompter-text blockquote {
+  margin: 0.6em auto;
+  padding-left: 0.7em;
+  border-left: 3px solid #444;
+  font-style: italic;
+  opacity: 0.85;
+}
+
 /* Mirroring/flipping is applied to the viewport wrapper, not #prompter-text
    itself, because the scroll animation sets an inline transform on
    #prompter-text every frame (inline styles always beat CSS classes, so a

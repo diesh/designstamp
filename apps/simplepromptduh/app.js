@@ -23,6 +23,11 @@ const SCOPE = "https://www.googleapis.com/auth/drive.file";
 let accessToken = null;
 let tokenClient = null;
 let docText = "";
+// Sanitized formatted HTML for the loaded Google Doc (headings/bold/italic/
+// underline/lists), used to render the prompter. Cleared (null) whenever the
+// source is plain pasted text or the user edits the script, since neither
+// has real formatting to preserve.
+let docHTML = null;
 let wakeLock = null;
 
 // Average speaking-read pace, used only for the estimate shown before play.
@@ -187,13 +192,100 @@ function updateDocStats() {
   applyTextFormatting();
 }
 
+// Google's HTML export marks bold/italic/underline as inline styles on
+// <span>s rather than <b>/<em>/<u> tags, so a plain tag allowlist wouldn't
+// catch them. This walks the export, keeps only headings/paragraphs/lists/
+// blockquotes plus bold/italic/underline (inferred from inline style or the
+// tag itself), and drops everything else (classes, colors, links, fonts).
+function sanitizeGoogleDocHtml(rawHtml) {
+  const source = new DOMParser().parseFromString(rawHtml, "text/html");
+
+  const isBold = (el) => {
+    const fw = el.style.fontWeight;
+    return fw === "bold" || parseInt(fw, 10) >= 600;
+  };
+  const isItalic = (el) => el.style.fontStyle === "italic";
+  const isUnderline = (el) => (el.style.textDecoration || "").includes("underline");
+
+  function walk(node) {
+    const frag = document.createDocumentFragment();
+    node.childNodes.forEach((child) => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        if (child.textContent) frag.appendChild(document.createTextNode(child.textContent));
+        return;
+      }
+      if (child.nodeType !== Node.ELEMENT_NODE) return;
+
+      const tag = child.tagName.toLowerCase();
+      const inner = walk(child);
+
+      if (/^h[1-6]$/.test(tag) || tag === "p" || tag === "ul" || tag === "ol" || tag === "li" || tag === "blockquote") {
+        const out = document.createElement(tag);
+        out.appendChild(inner);
+        frag.appendChild(out);
+        return;
+      }
+      if (tag === "br") {
+        frag.appendChild(document.createElement("br"));
+        return;
+      }
+
+      let wrapped = inner;
+      const wantsBold = tag === "b" || tag === "strong" || isBold(child);
+      const wantsItalic = tag === "i" || tag === "em" || isItalic(child);
+      const wantsUnderline = tag === "u" || isUnderline(child);
+      if (wantsUnderline) {
+        const u = document.createElement("u");
+        u.appendChild(wrapped);
+        wrapped = u;
+      }
+      if (wantsItalic) {
+        const em = document.createElement("em");
+        em.appendChild(wrapped);
+        wrapped = em;
+      }
+      if (wantsBold) {
+        const strong = document.createElement("strong");
+        strong.appendChild(wrapped);
+        wrapped = strong;
+      }
+      frag.appendChild(wrapped);
+    });
+    return frag;
+  }
+
+  const container = document.createElement("div");
+  container.appendChild(walk(source.body));
+  return container;
+}
+
+// Plain-text fallback used for word count, the session-edit textarea, and
+// the setup-screen preview. List items get a bullet since the formatted
+// view's real bullets won't survive the trip through a <textarea>.
+function htmlToPlainText(container) {
+  const lines = [];
+  container.childNodes.forEach((node) => {
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    if (node.tagName === "UL" || node.tagName === "OL") {
+      node.querySelectorAll("li").forEach((li) => {
+        const text = li.textContent.trim();
+        if (text) lines.push(`• ${text}`);
+      });
+      return;
+    }
+    const text = node.textContent.trim();
+    if (text) lines.push(text);
+  });
+  return lines.join("\n\n");
+}
+
 async function loadDocById(docId) {
   setStatus("Loading doc...", false);
   pickBtn.disabled = true;
 
   try {
     const res = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${docId}/export?mimeType=text/plain`,
+      `https://www.googleapis.com/drive/v3/files/${docId}/export?mimeType=text/html`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
 
@@ -208,13 +300,16 @@ async function loadDocById(docId) {
       return;
     }
 
-    docText = (await res.text()).replace(/\r\n/g, "\n").trim();
+    const rawHtml = await res.text();
+    const container = sanitizeGoogleDocHtml(rawHtml);
+    docText = htmlToPlainText(container);
 
     if (!docText) {
       setStatus("Doc loaded but it looks empty.");
       return;
     }
 
+    docHTML = container.innerHTML;
     updateDocStats();
     setStatus("Doc loaded.", false);
     controlsRow.classList.remove("hidden");
@@ -285,6 +380,7 @@ useTextBtn.addEventListener("click", () => {
     return;
   }
   docText = text;
+  docHTML = null;
   updateDocStats();
   setStatus("Text ready.", false);
   controlsRow.classList.remove("hidden");
@@ -303,6 +399,7 @@ editToggleBtn.addEventListener("click", () => {
 
 saveEditBtn.addEventListener("click", () => {
   docText = editTextarea.value.replace(/\r\n/g, "\n").trim();
+  docHTML = null;
   updateDocStats();
   editRow.classList.add("hidden");
   setStatus("Changes saved for this session.", false);
@@ -492,7 +589,11 @@ function releaseWakeLock() {
 }
 
 function enterPrompter() {
-  prompterText.textContent = docText;
+  if (docHTML) {
+    prompterText.innerHTML = docHTML;
+  } else {
+    prompterText.textContent = docText;
+  }
   prompterScreen.classList.remove("hidden");
   prompterScreen.classList.toggle("mirrored", mirrorToggle.checked);
   prompterScreen.classList.toggle("flipped", flipToggle.checked);
