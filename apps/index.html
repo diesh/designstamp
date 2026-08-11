@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apps — DesignStamp</title>
+<meta name="description" content="Small tools and apps built by DesignStamp." />
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: #000;
+    color: #eee;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+  }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 8px;
+  }
+  .subtitle {
+    color: #999;
+    font-size: 15px;
+    margin: 0 0 40px;
+  }
+  .app-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .app-card {
+    display: block;
+    padding: 20px 22px;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .app-card:hover {
+    border-color: #444;
+    background: #151515;
+  }
+  .app-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f4f4f4;
+    margin: 0 0 4px;
+  }
+  .app-desc {
+    font-size: 14px;
+    color: #999;
+    margin: 0;
+  }
+  .back-link {
+    display: inline-block;
+    margin-top: 48px;
+    font-size: 13px;
+    color: #666;
+    text-decoration: none;
+  }
+  .back-link:hover {
+    color: #999;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Apps</h1>
+    <p class="subtitle">Small tools I've built. Free to use.</p>
+
+    <div class="app-list">
+      <a href="/apps/simplepromptduh/" class="app-card">
+        <p class="app-name">simple PROMPT DUH</p>
+        <p class="app-desc">A free browser teleprompter. Paste your script or load a Google Doc, then read it back at your own pace.</p>
+      </a>
+
+      <a href="/apps/tastinggg/" class="app-card">
+        <p class="app-name">Tastinggg</p>
+        <p class="app-desc">Blind tasting for groups. Set up a lineup, have everyone submit notes, then reveal.</p>
+      </a>
+    </div>
+
+    <a href="/" class="back-link">&larr; Back to designstamp.com</a>
+  </div>
+</body>
+</html>

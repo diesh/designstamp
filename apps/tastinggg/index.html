@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Tastinggg — Blind Tasting for Groups</title>
+  <style>
+    :root {
+      --bg: #0a0806; --surface: #151008; --card: #1e1509;
+      --border: #332208; --gold: #e8a520;
+      --cream: #f5ead0; --muted: #8a7050; --smoke: #2a1c08;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--cream); -webkit-font-smoothing: antialiased; }
+    main { max-width: 480px; margin: 0 auto; padding: 60px 24px 80px; text-align: center; }
+    .logo { font-size: 2.8rem; font-weight: 900; color: var(--gold); letter-spacing: -0.03em; margin-bottom: 8px; }
+    .tagline { color: var(--muted); font-size: 1rem; margin-bottom: 40px; line-height: 1.5; }
+
+    /* Pricing */
+    .pricing-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .price-card {
+      background: var(--card); border: 1.5px solid var(--border); border-radius: 14px;
+      padding: 20px 14px; text-align: center; text-decoration: none;
+      display: block; transition: border-color 0.15s; color: var(--cream);
+    }
+    .price-card:hover { border-color: var(--gold); }
+    .price-card.featured { border-color: var(--gold); background: #16120a; }
+    .price-badge {
+      display: inline-block; background: var(--gold); color: #0a0806;
+      font-size: 0.6rem; font-weight: 900; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px;
+    }
+    .price-type { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); display: block; margin-bottom: 2px; }
+    .price-amount { font-size: 2.4rem; font-weight: 900; color: var(--gold); display: block; line-height: 1; margin: 6px 0 4px; }
+    .price-desc { font-size: 0.75rem; color: var(--muted); display: block; margin-bottom: 16px; }
+    .price-cta {
+      display: block; font-size: 0.88rem; font-weight: 800; padding: 10px;
+      border-radius: 10px; text-decoration: none; transition: all 0.15s;
+      background: var(--smoke); color: var(--cream); border: 1px solid var(--border);
+    }
+    .price-cta:hover { border-color: var(--gold); color: var(--gold); }
+    .price-card.featured .price-cta { background: var(--gold); color: #0a0806; border-color: var(--gold); }
+    .price-card.featured .price-cta:hover { background: #f5b830; }
+
+    .cta-secondary { display: block; width: 100%; background: transparent; color: var(--muted); border: 1.5px solid var(--border); border-radius: 14px; font-size: 0.88rem; font-weight: 700; padding: 14px; cursor: pointer; text-decoration: none; text-align: center; margin-bottom: 32px; transition: border-color 0.15s; }
+    .cta-secondary:hover { border-color: var(--gold); color: var(--gold); }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0 0 32px; }
+    .join-label { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .code-input { width: 100%; background: var(--card); border: 2px solid var(--border); border-radius: 14px; color: var(--cream); font-size: 2rem; font-weight: 800; padding: 18px; text-align: center; text-transform: uppercase; letter-spacing: 0.2em; font-family: inherit; margin-bottom: 12px; }
+    .code-input:focus { outline: none; border-color: var(--gold); }
+    .join-btn { width: 100%; background: var(--smoke); color: var(--cream); border: 1.5px solid var(--border); border-radius: 14px; font-size: 1rem; font-weight: 800; padding: 16px; cursor: pointer; transition: all 0.15s; }
+    .join-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .spirits-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 40px; }
+    .spirit-pill { background: var(--card); border: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; }
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gold); color: #0a0806; font-weight: 800; font-size: 1rem; padding: 14px 28px; border-radius: 28px; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 999; white-space: nowrap; pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.error { background: #c04040; color: #fff; }
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<main>
+  <div class="logo">Tastinggg</div>
+  <div class="tagline">Blind tasting nights for groups &mdash;<br>scored, revealed, remembered.</div>
+
+  <div class="pricing-row">
+    <a href="#" id="btn-event" class="price-card">
+      <span class="price-type">Per Event</span>
+      <span class="price-amount">$20</span>
+      <span class="price-desc">One night, one group</span>
+      <span class="price-cta">Host for $20 &rarr;</span>
+    </a>
+    <a href="#" id="btn-lifetime" class="price-card featured">
+      <span class="price-badge">Founding</span>
+      <span class="price-type">Lifetime</span>
+      <span class="price-amount">$45</span>
+      <span class="price-desc">Unlimited tastings forever</span>
+      <span class="price-cta">Get Lifetime &rarr;</span>
+    </a>
+  </div>
+
+  <a href="host.html" class="cta-secondary">Already paid? Recover your session &rarr;</a>
+
+  <div class="divider"></div>
+  <div class="join-label">Join a tasting</div>
+  <input class="code-input" id="codeInput" maxlength="6" placeholder="ABC123" autocomplete="off" spellcheck="false">
+  <button class="join-btn" onclick="joinTasting()">Join &rarr;</button>
+
+  <div class="spirits-list">
+    <span class="spirit-pill">Tequila &amp; Mezcal</span>
+    <span class="spirit-pill">Red Wine</span>
+    <span class="spirit-pill">White Wine</span>
+    <span class="spirit-pill">Port</span>
+    <span class="spirit-pill">Whiskey / Scotch</span>
+    <span class="spirit-pill">Beer</span>
+  </div>
+</main>
+<script>
+  const STRIPE_EVENT    = 'https://buy.stripe.com/7sY14n5kO23ccB07ND3Je00';
+  const STRIPE_LIFETIME = 'https://buy.stripe.com/3cI9AT8x07nw6cC4Br3Je01';
+
+  document.getElementById('btn-event').href = STRIPE_EVENT;
+  document.getElementById('btn-lifetime').href = STRIPE_LIFETIME;
+
+  function joinTasting() {
+    const code = document.getElementById('codeInput').value.trim().toUpperCase();
+    if (code.length !== 6) { showToast('Enter a 6-character code', true); return; }
+    window.location.href = 'app.html?code=' + code;
+  }
+  document.getElementById('codeInput').addEventListener('keydown', e => { if (e.key === 'Enter') joinTasting(); });
+
+  let toastTimer;
+  function showToast(msg, error=false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (error ? ' error' : '');
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>

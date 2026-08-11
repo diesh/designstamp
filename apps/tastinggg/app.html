@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Tastinggg</title>
+  <style>
+    :root { --bg:#0a0806;--surface:#151008;--card:#1e1509;--border:#6a4818;--gold:#e8a520;--gold-hover:#f5b830;--gold-dim:#c08820;--gold-tint:rgba(232,165,32,0.2);--cream:#f5ead0;--muted:#c0a060;--smoke:#301e08;--btn-text:#0a0806; }
+    * { box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent; }
+    html,body { height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--cream);-webkit-font-smoothing:antialiased; }
+
+    /* Name Screen */
+    #nameScreen { position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px; }
+    .name-screen-inner { max-width:440px;width:100%;text-align:center; }
+    .ns-logo { font-size:1.8rem;font-weight:900;color:var(--gold);letter-spacing:-0.02em;margin-bottom:8px; }
+    .ns-emoji { font-size:3rem;margin-bottom:8px;line-height:1; }
+    .ns-event { font-size:1rem;color:var(--muted);margin-bottom:36px;font-weight:600; }
+    .ns-label { font-size:0.72rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px; }
+    .ns-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:12px; }
+    .ns-name-btn { border:2px solid var(--border);background:var(--card);color:var(--cream);font-size:1.1rem;font-weight:700;padding:20px 12px;border-radius:14px;cursor:pointer;transition:all 0.15s; }
+    .ns-name-btn:hover { border-color:var(--gold);color:var(--gold);background:var(--gold-tint); }
+
+    /* Spirit Indicator */
+    .spirit-indicator { display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:20px; }
+    .si-emoji { font-size:1.8rem;line-height:1; }
+    .si-info { flex:1; }
+    .si-tasting { font-size:0.75rem;font-weight:600;color:var(--muted);margin-bottom:3px; }
+    .si-name { font-size:1.1rem;font-weight:800;color:var(--gold);line-height:1.2; }
+
+    /* Tasting-as in header */
+    .header-text { display:flex;flex-direction:column;justify-content:center; }
+    .tasting-as { font-size:0.72rem;color:var(--muted);font-weight:500;margin-top:1px; }
+
+    #app { display:flex;flex-direction:column;min-height:100dvh; }
+    header { position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border); }
+    .header-top { display:flex;align-items:center;padding:0 16px;height:44px; }
+    .app-title { font-size:1rem;font-weight:900;color:var(--gold);letter-spacing:-0.01em; }
+    .event-name-bar { padding:0 16px 10px;font-size:1.15rem;font-weight:800;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2; }
+    .event-name-bar:empty { display:none; }
+    .nav-tabs { display:flex;border-top:1px solid var(--border); }
+    .nav-tab { flex:1;border:none;background:none;color:var(--muted);font-size:0.92rem;font-weight:700;padding:13px 8px;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.15s;letter-spacing:0.01em;display:flex;align-items:center;justify-content:center;gap:7px; }
+    .nav-tab.active { color:var(--cream);border-bottom-color:var(--gold); }
+    .nav-tab svg { width:16px;height:16px;flex-shrink:0; }
+    main { flex:1;overflow-y:auto;padding:20px 16px 0; }
+    .view { display:none;max-width:720px;margin:0 auto;padding-bottom:20px; }
+    .view.active { display:block; }
+    .section-label { font-size:0.7rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px; }
+    .form-block { margin-bottom:28px; }
+    .spirit-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:10px; }
+    .spirit-btn { border:2px solid var(--border);background:var(--card);border-radius:14px;padding:18px 4px;cursor:pointer;transition:all 0.15s;text-align:center; }
+    .spirit-btn .lbl { font-size:2rem;font-weight:900;line-height:1;color:var(--cream);display:block;margin-bottom:5px; }
+    .spirit-btn .nm { font-size:0.7rem;font-weight:600;color:var(--muted);display:block; }
+    .spirit-btn.selected { border-color:var(--gold);background:var(--gold-tint); }
+    .spirit-btn.selected .lbl { color:var(--gold); }
+    .category-card { background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px; }
+    .category-title { font-size:0.72rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px; }
+    .chips { display:flex;flex-wrap:wrap;gap:9px;margin-bottom:14px; }
+    .chip { border:2px solid var(--border);background:var(--smoke);color:var(--cream);font-size:0.92rem;font-weight:600;padding:9px 16px;border-radius:24px;cursor:pointer;transition:all 0.15s;user-select:none;line-height:1.2; }
+    .chip.selected { border-color:var(--gold);background:var(--gold-tint);color:var(--gold); }
+    .score-row { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px; }
+    .score-btn { border:2px solid var(--border);background:var(--smoke);color:var(--cream);font-size:1.1rem;font-weight:800;width:48px;height:48px;border-radius:12px;cursor:pointer;transition:all 0.15s; }
+    .score-btn.selected { border-color:var(--gold);background:var(--gold-tint);color:var(--gold); }
+    .score-btn.high { border-color:#3a6630;color:#7dd66a; }
+    .score-btn.high.selected { background:rgba(80,160,60,0.25);border-color:#5aa045;color:#8ef07a; }
+    .notes-input { width:100%;background:var(--smoke);border:1.5px solid var(--border);border-radius:10px;color:var(--cream);font-size:1rem;padding:12px 14px;resize:none;font-family:inherit;line-height:1.5; }
+    .notes-input::placeholder { color:var(--muted); }
+    .notes-input:focus { outline:none;border-color:var(--gold-dim); }
+    .submit-btn { width:100%;background:var(--gold);color:var(--btn-text);border:none;border-radius:14px;font-size:1.1rem;font-weight:900;padding:18px;cursor:pointer;letter-spacing:-0.01em;transition:all 0.15s;margin-top:8px; }
+    .submit-btn:hover { background:var(--gold-hover); }
+    .submit-btn:active { transform:scale(0.98); }
+    .submit-btn:disabled { background:var(--smoke);color:var(--muted);cursor:not-allowed; }
+    .progress-row { display:flex;align-items:center;gap:10px;margin-bottom:24px;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:14px; }
+    .prog-label { font-size:0.85rem;color:var(--muted);flex:1;font-weight:600; }
+    .progress-dots { display:flex;gap:8px; }
+    .prog-dot { width:12px;height:12px;border-radius:50%;background:var(--border);transition:background 0.2s; }
+    .prog-dot.done { background:var(--gold); }
+    .pick-prompt { text-align:center;color:var(--muted);font-size:1rem;font-weight:600;padding:40px 0; }
+    .results-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:20px; }
+    .results-subtitle { font-size:0.85rem;color:var(--muted);margin-top:2px; }
+    .refresh-btn { border:1.5px solid var(--border);background:var(--card);color:var(--cream);font-size:0.85rem;font-weight:700;padding:8px 16px;border-radius:10px;cursor:pointer; }
+    .result-tabs { display:flex;gap:4px;background:var(--smoke);border-radius:10px;padding:4px;margin-bottom:20px; }
+    .result-tab { flex:1;border:none;background:none;color:var(--muted);font-size:0.9rem;font-weight:700;padding:9px;border-radius:6px;cursor:pointer;transition:all 0.2s; }
+    .result-tab.active { background:var(--card);color:var(--cream); }
+    .score-table-wrap { overflow-x:auto;margin-bottom:24px;border-radius:14px;border:1px solid var(--border); }
+    .score-table { width:100%;border-collapse:collapse;font-size:0.9rem;min-width:360px; }
+    .score-table th { background:var(--card);color:var(--muted);font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:12px 14px;text-align:center;border-bottom:1px solid var(--border); }
+    .score-table th:first-child { text-align:left; }
+    .score-table td { padding:12px 14px;text-align:center;border-bottom:1px solid var(--border);color:var(--cream);font-size:0.9rem; }
+    .score-table td:first-child { text-align:left;color:var(--muted);font-weight:700; }
+    .score-table tr:last-child td { border-bottom:none; }
+    .score-table tfoot td { background:var(--smoke);font-weight:800;color:var(--gold); }
+    .score-pill { display:inline-block;background:var(--gold-tint);color:var(--gold);font-weight:800;border-radius:8px;padding:4px 10px;min-width:34px;font-size:0.9rem; }
+    .score-pill.empty { background:transparent;color:var(--muted);font-weight:400; }
+    .avg-badge { font-size:0.78rem;font-weight:800;background:var(--gold-tint);color:var(--gold);border-radius:6px;padding:3px 8px; }
+    .spirit-group { margin-bottom:36px; }
+    .spirit-group-header { display:flex;align-items:baseline;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--border); }
+    .spirit-group-letter { font-size:2rem;font-weight:900;color:var(--gold);line-height:1; }
+    .spirit-group-name { font-size:1.05rem;font-weight:700;color:var(--cream); }
+    .spirit-group-count { font-size:0.82rem;color:var(--muted);margin-left:auto; }
+    .submission-card { background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px; }
+    .submission-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+    .submission-person { font-size:1rem;font-weight:800;color:var(--cream); }
+    .submission-score { font-size:1.6rem;font-weight:900;color:var(--gold);line-height:1; }
+    .submission-score .denom { font-size:0.75rem;font-weight:500;color:var(--muted); }
+    .note-row { display:flex;gap:10px;margin-bottom:9px;font-size:0.88rem; }
+    .note-label { font-size:0.65rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-dim);min-width:76px;padding-top:2px; }
+    .note-value { color:var(--muted);flex:1;line-height:1.55; }
+    .chip-list { display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px; }
+    .mini-chip { background:var(--smoke);border:1px solid var(--border);color:var(--cream);font-size:0.75rem;font-weight:600;padding:3px 10px;border-radius:12px; }
+    .win-banner { border-radius:16px;padding:20px 20px 18px;margin-bottom:20px;text-align:center;background:var(--gold-tint);border:2px solid var(--gold); }
+    .win-banner .win-label { font-size:0.7rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px; }
+    .win-banner .win-spirit { font-size:2rem;font-weight:900;color:var(--cream);line-height:1.1;margin-bottom:4px; }
+    .win-banner .win-score { font-size:0.9rem;color:var(--muted);font-weight:600; }
+    .no-results { text-align:center;padding:60px 24px;color:var(--muted); }
+    .no-results .big { font-size:3rem;margin-bottom:14px;opacity:0.3; }
+    .divider { border:none;border-top:1px solid var(--border);margin:10px 0 14px; }
+    .reveal-banner { background:var(--gold);color:var(--btn-text);text-align:center;padding:12px;font-weight:800;font-size:1rem;letter-spacing:0.02em; }
+    .code-screen { max-width:400px;margin:80px auto 0;padding:0 24px;text-align:center; }
+    .code-screen h2 { font-size:1.8rem;font-weight:900;color:var(--gold);margin-bottom:8px; }
+    .code-screen p { color:var(--muted);margin-bottom:32px; }
+    .code-input { width:100%;background:var(--card);border:2px solid var(--border);border-radius:14px;color:var(--cream);font-size:2rem;font-weight:800;padding:18px;text-align:center;text-transform:uppercase;letter-spacing:0.2em;font-family:inherit; }
+    .code-input:focus { outline:none;border-color:var(--gold); }
+    .join-btn { width:100%;margin-top:16px;background:var(--gold);color:var(--btn-text);border:none;border-radius:14px;font-size:1.1rem;font-weight:900;padding:18px;cursor:pointer; }
+    .toast { position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);color:var(--btn-text);font-weight:800;font-size:1rem;padding:14px 28px;border-radius:28px;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);z-index:999;white-space:nowrap;pointer-events:none; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.error { background:#c04040;color:#fff; }
+    #loading { position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;color:var(--gold);font-size:1.2rem;font-weight:800;transition:opacity 0.3s; }
+    #loading.hidden { opacity:0;pointer-events:none; }
+    .marketing-footer { text-align:center;padding:48px 24px 40px;border-top:1px solid var(--border);margin-top:40px; }
+    .mf-logo { font-size:1.5rem;font-weight:900;color:var(--gold);letter-spacing:-0.02em;margin-bottom:6px; }
+    .mf-tag { font-size:0.88rem;color:var(--muted);font-weight:500;line-height:1.5; }
+  </style>
+</head>
+<body>
+<div id="loading">Loading...</div>
+<div class="toast" id="toast"></div>
+
+<!-- NAME SCREEN — shown after session loads, before main app -->
+<div id="nameScreen" style="display:none">
+  <div class="name-screen-inner">
+    <div class="ns-logo">Tastinggg</div>
+    <div class="ns-emoji" id="nsEmoji"></div>
+    <div class="ns-event" id="nsEvent"></div>
+    <div class="ns-label">Who are you?</div>
+    <div class="ns-grid" id="nameGrid"></div>
+  </div>
+</div>
+
+<div id="codeScreen" class="code-screen" style="display:none">
+  <h2>Tastinggg</h2>
+  <p>Enter your room code to join</p>
+  <input class="code-input" id="codeInput" maxlength="6" placeholder="ABC123" autocomplete="off" spellcheck="false">
+  <button class="join-btn" onclick="joinSession()">Join Tasting</button>
+</div>
+
+<div id="app" style="display:none;flex-direction:column;min-height:100dvh">
+  <div id="revealBanner" class="reveal-banner" style="display:none">🎉 The spirits are revealed! Check Results.</div>
+  <header>
+    <div class="header-top">
+      <div class="app-title">Tastinggg</div>
+    </div>
+    <div class="event-name-bar" id="eventNameHeader"></div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-view="form"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2l3 3-7 7H4v-3l7-7z"/><path d="M9 4l3 3"/></svg>Add Notes</button>
+      <button class="nav-tab" data-view="results"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="3" height="5" rx="0.5"/><rect x="6.5" y="5" width="3" height="9" rx="0.5"/><rect x="11" y="2" width="3" height="12" rx="0.5"/></svg>Results</button>
+    </nav>
+  </header>
+  <main>
+    <div id="view-form" class="view active">
+      <div class="progress-row">
+        <span class="prog-label">Your progress</span>
+        <div class="progress-dots" id="progressDots"></div>
+      </div>
+
+      <!-- Spirit indicator: shown when a spirit is selected -->
+      <div id="spiritIndicator" class="spirit-indicator" style="display:none">
+        <div class="si-emoji" id="indicatorEmoji"></div>
+        <div class="si-info">
+          <div class="si-tasting" id="indicatorTasting"></div>
+          <div class="si-name" id="indicatorName"></div>
+        </div>
+      </div>
+
+      <div class="form-block">
+        <div class="section-label">Which spirit?</div>
+        <div class="spirit-grid" id="spiritGrid"></div>
+      </div>
+      <div id="categorySection" style="display:none">
+        <div id="categoriesContainer"></div>
+        <div class="category-card">
+          <div class="category-title">Overall Score</div>
+          <div class="score-row" id="scoreRow"></div>
+          <textarea class="notes-input" id="text-overall" rows="2" placeholder="Final thoughts..."></textarea>
+        </div>
+        <button class="submit-btn" id="submitBtn" disabled>Submit Tasting Notes</button>
+      </div>
+      <div id="pickPrompt" class="pick-prompt">Select a spirit to begin</div>
+    </div>
+    <div id="view-results" class="view">
+      <div id="winBanner" style="display:none"></div>
+      <div class="results-header">
+        <div>
+          <div class="section-label">All Submissions</div>
+          <div class="results-subtitle" id="resultsSubtitle">Loading...</div>
+        </div>
+        <button class="refresh-btn" id="refreshBtn">Refresh</button>
+      </div>
+      <div class="score-table-wrap">
+        <table class="score-table">
+          <thead><tr id="scoreTableHead"></tr></thead>
+          <tbody id="scoreTableBody"></tbody>
+          <tfoot><tr id="scoreTableFoot"></tr></tfoot>
+        </table>
+      </div>
+      <div class="result-tabs">
+        <button class="result-tab active" data-rtab="spirit">By Spirit</button>
+        <button class="result-tab" data-rtab="person">By Person</button>
+      </div>
+      <div id="resultsDetail"></div>
+    </div>
+    <div class="marketing-footer">
+      <div class="mf-logo">Tastinggg</div>
+      <div class="mf-tag">You've got taste. Test it with friends.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const DB_URL = 'https://cocktail-49fc4-default-rtdb.firebaseio.com';
+
+const SPIRIT_THEMES = {
+  'tequila-mezcal': { name:'Tequila & Mezcal', bg:'#0f0800',surface:'#1a1000',card:'#271800',border:'#6a4818',gold:'#d4a020',goldHover:'#e8b430',goldDim:'#c08820',goldTint:'rgba(212,160,32,0.2)',cream:'#f5e6c8',muted:'#c09848',smoke:'#301e08',btnText:'#0f0800',emoji:'🥃' },
+  'red-wine':       { name:'Red Wine', bg:'#0e0004',surface:'#180008',card:'#260010',border:'#8a1838',gold:'#e03055',goldHover:'#f04868',goldDim:'#c82848',goldTint:'rgba(200,40,72,0.2)',cream:'#f5d0d8',muted:'#d08898',smoke:'#300010',btnText:'#fff',emoji:'🍷' },
+  'white-wine':     { name:'White Wine', bg:'#f0ece4',surface:'#e8e3da',card:'#faf7f2',border:'#bfb8a8',gold:'#7a6c3c',goldHover:'#9a8a50',goldDim:'#5c5028',goldTint:'rgba(122,108,60,0.2)',cream:'#1a1610',muted:'#4a4030',smoke:'#e4dfd4',btnText:'#1a1610',emoji:'🥂' },
+  'port':           { name:'Port', bg:'#08000e',surface:'#100018',card:'#1e0030',border:'#6a20a0',gold:'#c060e0',goldHover:'#d878f0',goldDim:'#a848c8',goldTint:'rgba(180,80,220,0.2)',cream:'#f0d0f8',muted:'#c088d8',smoke:'#280040',btnText:'#fff',emoji:'🍶' },
+  'whiskey-scotch': { name:'Whiskey / Scotch', bg:'#100800',surface:'#1e1000',card:'#2e1c00',border:'#7a5020',gold:'#e06020',goldHover:'#f07030',goldDim:'#d05818',goldTint:'rgba(224,96,32,0.2)',cream:'#f5dfc0',muted:'#c89050',smoke:'#342008',btnText:'#100800',emoji:'🥃' },
+  'beer':           { name:'Beer', bg:'#080c00',surface:'#101800',card:'#1e2a00',border:'#606800',gold:'#d8d000',goldHover:'#ece800',goldDim:'#b0b000',goldTint:'rgba(210,200,0,0.2)',cream:'#f5f0c8',muted:'#c0bc50',smoke:'#283200',btnText:'#080c00',emoji:'🍺' },
+};
+
+function applyTheme(spiritType) {
+  const t = SPIRIT_THEMES[spiritType]; if(!t) return;
+  const s = document.documentElement.style;
+  s.setProperty('--bg', t.bg); s.setProperty('--surface', t.surface);
+  s.setProperty('--card', t.card); s.setProperty('--border', t.border);
+  s.setProperty('--gold', t.gold); s.setProperty('--gold-hover', t.goldHover);
+  s.setProperty('--gold-dim', t.goldDim); s.setProperty('--gold-tint', t.goldTint);
+  s.setProperty('--cream', t.cream); s.setProperty('--muted', t.muted);
+  s.setProperty('--smoke', t.smoke); s.setProperty('--btn-text', t.btnText);
+}
+
+const SPIRIT_CONFIGS = {
+  'tequila-mezcal': { name:'Tequila & Mezcal', categories:[
+    {id:'appearance',title:'Appearance',mode:'single',options:['Crystal Clear','Pale Gold','Gold','Deep Gold','Amber'],placeholder:'Colour notes...'},
+    {id:'legs',title:'Legs',mode:'single',options:['Thin & Fast','Medium','Thick & Slow'],placeholder:'Viscosity notes...'},
+    {id:'nose',title:'Nose',mode:'multi',options:['Agave','Citrus','Floral','Vanilla','Caramel','Smoke','Pepper','Earthy','Tropical Fruit','Herbs','Butter','Chocolate'],placeholder:'Aroma notes...'},
+    {id:'palate',title:'Palate',mode:'multi',options:['Smooth','Fiery','Sweet','Dry','Creamy','Complex','Agave-forward','Oaky','Spicy','Salty'],placeholder:'Taste notes...'},
+    {id:'finish',title:'Finish (Aftertaste)',mode:'single',options:['Short (gone!)','Smooth (No burn)','Warm (like a hug)','Lingering (30 seconds+)'],placeholder:'Finish notes...'}
+  ]},
+  'red-wine': { name:'Red Wine', categories:[
+    {id:'appearance',title:'Appearance',mode:'single',options:['Light Ruby','Ruby','Garnet','Purple','Brick','Deep Opaque'],placeholder:'Colour notes...'},
+    {id:'nose',title:'Nose',mode:'multi',options:['Red Berries','Dark Fruits','Plum','Cherry','Earthy','Spice','Oak','Floral','Tobacco','Leather','Vanilla','Chocolate'],placeholder:'Aroma notes...'},
+    {id:'tannins',title:'Tannins',mode:'single',options:['Low (silky)','Medium','High (grippy)','Very High (drying)'],placeholder:'Tannin notes...'},
+    {id:'palate',title:'Palate',mode:'multi',options:['Fruit-forward','Dry','Jammy','Earthy','Spicy','Oaky','Acidic','Full-bodied','Light-bodied','Complex'],placeholder:'Taste notes...'},
+    {id:'finish',title:'Finish',mode:'single',options:['Short','Medium','Long','Very Long'],placeholder:'Finish notes...'}
+  ]},
+  'white-wine': { name:'White Wine', categories:[
+    {id:'appearance',title:'Appearance',mode:'single',options:['Pale Straw','Straw','Gold','Deep Gold','Amber'],placeholder:'Colour notes...'},
+    {id:'nose',title:'Nose',mode:'multi',options:['Citrus','Stone Fruit','Tropical','Floral','Mineral','Herbaceous','Oak','Honey','Apple','Pear','Vanilla'],placeholder:'Aroma notes...'},
+    {id:'palate',title:'Palate',mode:'multi',options:['Crisp','Dry','Off-dry','Sweet','Full-bodied','Light-bodied','Acidic','Buttery','Creamy','Mineral'],placeholder:'Taste notes...'},
+    {id:'finish',title:'Finish',mode:'single',options:['Short','Medium','Long','Very Long'],placeholder:'Finish notes...'}
+  ]},
+  'port': { name:'Port', categories:[
+    {id:'appearance',title:'Appearance',mode:'single',options:['Ruby','Garnet','Tawny','Dark Brown'],placeholder:'Colour notes...'},
+    {id:'nose',title:'Nose',mode:'multi',options:['Dried Fruit','Chocolate','Caramel','Nuts','Spice','Floral','Berry','Tobacco','Honey','Raisin'],placeholder:'Aroma notes...'},
+    {id:'palate',title:'Palate',mode:'multi',options:['Rich','Sweet','Nutty','Fruity','Spicy','Chocolatey','Warming','Complex','Velvety'],placeholder:'Taste notes...'},
+    {id:'finish',title:'Finish',mode:'single',options:['Short','Medium','Long','Very Long'],placeholder:'Finish notes...'}
+  ]},
+  'whiskey-scotch': { name:'Whiskey / Scotch', categories:[
+    {id:'appearance',title:'Appearance',mode:'single',options:['Pale Gold','Gold','Amber','Deep Amber','Mahogany'],placeholder:'Colour notes...'},
+    {id:'nose',title:'Nose',mode:'multi',options:['Vanilla','Caramel','Oak','Peat','Smoke','Dried Fruit','Spice','Honey','Floral','Grain','Citrus','Sherry'],placeholder:'Aroma notes...'},
+    {id:'palate',title:'Palate',mode:'multi',options:['Smooth','Peaty','Sweet','Spicy','Woody','Fruity','Creamy','Dry','Sherried','Malty'],placeholder:'Taste notes...'},
+    {id:'finish',title:'Finish (Aftertaste)',mode:'single',options:['Short','Warming','Long & Smoky','Long & Dry','Long & Sweet'],placeholder:'Finish notes...'}
+  ]},
+  'beer': { name:'Beer', categories:[
+    {id:'appearance',title:'Appearance',mode:'single',options:['Pale/Straw','Golden','Amber','Brown','Dark/Stout','Hazy/Cloudy'],placeholder:'Colour notes...'},
+    {id:'nose',title:'Nose',mode:'multi',options:['Citrus Hops','Floral Hops','Pine Hops','Tropical Hops','Malt','Roasted','Yeast','Fruit','Caramel','Chocolate','Coffee'],placeholder:'Aroma notes...'},
+    {id:'palate',title:'Palate',mode:'multi',options:['Hoppy','Malty','Roasted','Fruity','Sweet','Dry','Crisp','Creamy','Bitter','Sour'],placeholder:'Taste notes...'},
+    {id:'carbonation',title:'Carbonation',mode:'single',options:['Flat','Low','Medium','High','Very Fizzy'],placeholder:'Carbonation notes...'},
+    {id:'finish',title:'Finish',mode:'single',options:['Clean & Short','Bitter','Sweet','Dry','Lingering'],placeholder:'Finish notes...'}
+  ]}
+};
+
+let SESSION_CODE=null,SESSION_CONFIG=null,SUBMISSIONS=[],selectedPerson=null,selectedSpirit=null,resultTab='spirit',revealInterval=null;
+
+function getCodeFromURL(){
+  return new URLSearchParams(window.location.search).get('code')?.toUpperCase()||null;
+}
+
+async function joinSession(){
+  const code=(document.getElementById('codeInput')?.value||SESSION_CODE||'').toUpperCase().trim();
+  if(code.length!==6){showToast('Enter a 6-character code',true);return;}
+  SESSION_CODE=code;
+  await loadSession();
+}
+
+async function loadSession(){
+  showLoading(true);
+  try{
+    const res=await fetch(`${DB_URL}/sessions/${SESSION_CODE}/config.json`);
+    if(!res.ok) throw new Error();
+    const config=await res.json();
+    if(!config) throw new Error('not found');
+    SESSION_CONFIG=config;
+    applyTheme(config.spiritType);
+    SUBMISSIONS=await loadSubmissions();
+    showLoading(false);
+    showNameScreen();
+  }catch{
+    showLoading(false);
+    document.getElementById('codeScreen').style.display='block';
+    showToast('Session not found — check your code',true);
+  }
+}
+
+async function loadSubmissions(){
+  const res=await fetch(`${DB_URL}/sessions/${SESSION_CODE}/submissions.json`);
+  if(!res.ok) return [];
+  const data=await res.json();
+  return data?Object.values(data):[];
+}
+
+async function saveSubmission(sub){
+  const key=`${sub.person}_${sub.spiritId}`.replace(/\s+/g,'_');
+  const res=await fetch(`${DB_URL}/sessions/${SESSION_CODE}/submissions/${key}.json`,{
+    method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(sub)
+  });
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  return loadSubmissions();
+}
+
+function startRevealPolling(){
+  if(revealInterval) clearInterval(revealInterval);
+  if(SESSION_CONFIG.revealed) return;
+  revealInterval=setInterval(async()=>{
+    try{
+      const res=await fetch(`${DB_URL}/sessions/${SESSION_CODE}/config/revealed.json`);
+      if(await res.json()===true){
+        clearInterval(revealInterval);
+        const cr=await fetch(`${DB_URL}/sessions/${SESSION_CODE}/config.json`);
+        SESSION_CONFIG=await cr.json();
+        SUBMISSIONS=await loadSubmissions();
+        buildForm();
+        buildResults();
+        updateSpiritIndicator();
+        document.getElementById('revealBanner').style.display='block';
+      }
+    }catch{}
+  },6000);
+}
+
+function showNameScreen(){
+  const cfg=SESSION_CONFIG;
+  const theme=SPIRIT_THEMES[cfg.spiritType]||SPIRIT_THEMES['tequila-mezcal'];
+  document.getElementById('codeScreen').style.display='none';
+  const ns=document.getElementById('nameScreen');
+  ns.style.display='flex';
+  document.getElementById('nsEmoji').textContent=theme.emoji;
+  document.getElementById('nsEvent').textContent=cfg.eventName||'Blind Tasting';
+  const grid=document.getElementById('nameGrid');
+  grid.innerHTML=cfg.people.map(p=>`<button class="ns-name-btn" onclick="pickName(this.dataset.name)" data-name="${p.replace(/"/g,'&quot;')}">${p}</button>`).join('');
+}
+
+function pickName(name){
+  selectedPerson=name;
+  document.getElementById('nameScreen').style.display='none';
+  const appEl=document.getElementById('app');
+  appEl.style.display='flex';
+  document.getElementById('eventNameHeader').textContent=SESSION_CONFIG.eventName||'';
+  buildForm();
+  buildResults();
+  updateDots();
+  startRevealPolling();
+  if(SESSION_CONFIG.revealed) document.getElementById('revealBanner').style.display='block';
+}
+
+function buildForm(){
+  const cfg=SESSION_CONFIG;
+  const spiritCfg=SPIRIT_CONFIGS[cfg.spiritType]||SPIRIT_CONFIGS['tequila-mezcal'];
+
+  const sg=document.getElementById('spiritGrid');
+  sg.innerHTML=cfg.spirits.map(s=>`<button class="spirit-btn" data-id="${s.label}"><span class="lbl">${s.label}</span><span class="nm">${cfg.revealed?(s.revealName||s.label):''}</span></button>`).join('');
+  sg.querySelectorAll('.spirit-btn').forEach(b=>b.addEventListener('click',()=>selectSpirit(b.dataset.id)));
+
+  const container=document.getElementById('categoriesContainer');
+  container.innerHTML=spiritCfg.categories.map(cat=>`
+    <div class="category-card">
+      <div class="category-title">${cat.title}</div>
+      <div class="chips" id="chips-${cat.id}" data-mode="${cat.mode}">${cat.options.map(o=>`<button class="chip" data-value="${o}">${o}</button>`).join('')}</div>
+      <textarea class="notes-input" id="text-${cat.id}" rows="2" placeholder="${cat.placeholder}"></textarea>
+    </div>`).join('');
+  container.querySelectorAll('.chips').forEach(c=>{
+    c.querySelectorAll('.chip').forEach(chip=>{
+      chip.addEventListener('click',()=>{
+        if(c.dataset.mode==='single') c.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected'));
+        chip.classList.toggle('selected');
+        checkReady();
+      });
+    });
+  });
+
+  const sr=document.getElementById('scoreRow');
+  sr.innerHTML=Array.from({length:10},(_,i)=>i+1).map(n=>`<button class="score-btn ${n>=8?'high':''}" data-score="${n}">${n}</button>`).join('');
+  sr.querySelectorAll('.score-btn').forEach(b=>b.addEventListener('click',()=>{
+    sr.querySelectorAll('.score-btn').forEach(x=>x.classList.remove('selected'));
+    b.classList.add('selected');checkReady();
+  }));
+
+  document.getElementById('progressDots').innerHTML=cfg.spirits.map(s=>`<div class="prog-dot" data-sid="${s.label}"></div>`).join('');
+}
+
+function selectSpirit(id){
+  selectedSpirit=id;
+  document.querySelectorAll('.spirit-btn').forEach(b=>b.classList.toggle('selected',b.dataset.id===id));
+  updateSpiritIndicator();
+  checkShow();
+  loadExisting();
+}
+
+function updateSpiritIndicator(){
+  if(!selectedSpirit||!SESSION_CONFIG) return;
+  const spirit=SESSION_CONFIG.spirits.find(s=>s.label===selectedSpirit);
+  if(!spirit) return;
+  const theme=SPIRIT_THEMES[SESSION_CONFIG.spiritType]||SPIRIT_THEMES['tequila-mezcal'];
+  document.getElementById('spiritIndicator').style.display='flex';
+  document.getElementById('indicatorEmoji').textContent=theme.emoji;
+  const spiritLabel=SESSION_CONFIG.revealed&&spirit.revealName?spirit.revealName:`${theme.name} ${spirit.label}`;
+  document.getElementById('indicatorTasting').textContent=selectedPerson?`${selectedPerson}, you're now tasting:`:'Now tasting:';
+  document.getElementById('indicatorName').textContent=spiritLabel;
+}
+
+function checkShow(){
+  const show=!!selectedSpirit;
+  document.getElementById('categorySection').style.display=show?'block':'none';
+  document.getElementById('pickPrompt').style.display=show?'none':'block';
+  checkReady();
+}
+
+function checkReady(){
+  if(!selectedSpirit)return;
+  document.getElementById('submitBtn').disabled=!document.querySelector('#scoreRow .score-btn.selected');
+}
+
+function updateDots(){
+  if(!selectedPerson)return;
+  const done=new Set(SUBMISSIONS.filter(s=>s.person===selectedPerson).map(s=>s.spiritId));
+  document.querySelectorAll('.prog-dot').forEach(d=>d.classList.toggle('done',done.has(d.dataset.sid)));
+}
+
+function loadExisting(){
+  const ex=SUBMISSIONS.find(s=>s.person===selectedPerson&&s.spiritId===selectedSpirit);
+  resetForm();
+  if(!ex) return;
+  const spiritCfg=SPIRIT_CONFIGS[SESSION_CONFIG.spiritType]||SPIRIT_CONFIGS['tequila-mezcal'];
+  spiritCfg.categories.forEach(cat=>{
+    const sel=ex.notes[cat.id]?.selected;
+    const cont=document.getElementById(`chips-${cat.id}`);
+    if(!sel||!cont) return;
+    const vals=Array.isArray(sel)?sel:[sel];
+    cont.querySelectorAll('.chip').forEach(c=>c.classList.toggle('selected',vals.includes(c.dataset.value)));
+    const ta=document.getElementById(`text-${cat.id}`);
+    if(ta) ta.value=ex.notes[cat.id]?.text||'';
+  });
+  const score=ex.notes.overall?.score;
+  if(score) document.querySelectorAll('#scoreRow .score-btn').forEach(b=>b.classList.toggle('selected',+b.dataset.score===score));
+  const ot=document.getElementById('text-overall');
+  if(ot) ot.value=ex.notes.overall?.text||'';
+  checkReady();
+}
+
+function resetForm(){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.score-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.notes-input').forEach(t=>t.value='');
+  checkReady();
+}
+
+document.getElementById('submitBtn').addEventListener('click',async()=>{
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='Saving...';
+  const spiritCfg=SPIRIT_CONFIGS[SESSION_CONFIG.spiritType]||SPIRIT_CONFIGS['tequila-mezcal'];
+  const notes={};
+  spiritCfg.categories.forEach(cat=>{
+    const c=document.getElementById(`chips-${cat.id}`);
+    const sel=[...c.querySelectorAll('.chip.selected')].map(x=>x.dataset.value);
+    notes[cat.id]={selected:cat.mode==='single'?(sel[0]||null):sel,text:document.getElementById(`text-${cat.id}`)?.value.trim()||''};
+  });
+  const scoreEl=document.querySelector('#scoreRow .score-btn.selected');
+  notes.overall={score:+scoreEl.dataset.score,text:document.getElementById('text-overall').value.trim()};
+  try{
+    SUBMISSIONS=await saveSubmission({person:selectedPerson,spiritId:selectedSpirit,notes,timestamp:new Date().toISOString()});
+    updateDots();buildResults();showToast('Notes saved!');
+    const done=new Set(SUBMISSIONS.filter(s=>s.person===selectedPerson).map(s=>s.spiritId));
+    const next=SESSION_CONFIG.spirits.find(s=>!done.has(s.label));
+    if(next) selectSpirit(next.label);
+  }catch{showToast('Save failed — check connection',true);}
+  btn.textContent='Submit Tasting Notes';checkReady();
+});
+
+function buildResults(){
+  const cfg=SESSION_CONFIG;
+  document.getElementById('resultsSubtitle').textContent=`${SUBMISSIONS.length} of ${cfg.people.length*cfg.spirits.length} possible notes submitted`;
+  const spiritLabel=s=>cfg.revealed?(s.revealName||s.label):s.label;
+  document.getElementById('scoreTableHead').innerHTML=`<th>Person</th>${cfg.spirits.map(s=>`<th>${spiritLabel(s)}</th>`).join('')}<th>Avg</th>`;
+  document.getElementById('scoreTableBody').innerHTML=cfg.people.map(person=>{
+    const scores=cfg.spirits.map(s=>SUBMISSIONS.find(sub=>sub.person===person&&sub.spiritId===s.label)?.notes?.overall?.score??null);
+    const valid=scores.filter(s=>s!==null);
+    const avg=valid.length?(valid.reduce((a,b)=>a+b,0)/valid.length).toFixed(1):null;
+    return `<tr><td>${person}</td>${scores.map(s=>`<td>${s!==null?`<span class="score-pill">${s}</span>`:`<span class="score-pill empty">–</span>`}</td>`).join('')}<td>${avg?`<span class="avg-badge">${avg}</span>`:`–`}</td></tr>`;
+  }).join('');
+  const colAvgs=cfg.spirits.map(s=>{
+    const scores=SUBMISSIONS.filter(sub=>sub.spiritId===s.label&&sub.notes?.overall?.score).map(sub=>sub.notes.overall.score);
+    return scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1):null;
+  });
+  document.getElementById('scoreTableFoot').innerHTML=`<td>Avg</td>${colAvgs.map(a=>`<td>${a??'–'}</td>`).join('')}<td></td>`;
+  buildWinBanner(cfg, colAvgs);
+  buildDetail();
+}
+
+function buildWinBanner(cfg, colAvgs){
+  const banner=document.getElementById('winBanner');
+  // need at least one spirit with scores
+  const scored=colAvgs.map((avg,i)=>({spirit:cfg.spirits[i],avg:avg===null?null:parseFloat(avg)})).filter(x=>x.avg!==null);
+  if(!scored.length){banner.style.display='none';return;}
+  const best=Math.max(...scored.map(x=>x.avg));
+  const winners=scored.filter(x=>x.avg===best);
+  const isTie=winners.length>1;
+  const spiritLabel=s=>cfg.revealed&&s.revealName?s.revealName:s.label;
+  if(isTie){
+    const names=winners.map(w=>spiritLabel(w.spirit)).join(' & ');
+    banner.innerHTML=`<div class="win-banner"><div class="win-label">🏆 It's a tie!</div><div class="win-spirit">${names}</div><div class="win-score">Both averaging ${best}/10</div></div>`;
+  }else{
+    const w=winners[0];
+    banner.innerHTML=`<div class="win-banner"><div class="win-label">🏆 Top Spirit</div><div class="win-spirit">${spiritLabel(w.spirit)}</div><div class="win-score">Averaging ${best}/10</div></div>`;
+  }
+  banner.style.display='block';
+}
+
+function buildDetail(){
+  const cfg=SESSION_CONFIG;
+  const c=document.getElementById('resultsDetail');
+  if(!SUBMISSIONS.length){c.innerHTML=`<div class="no-results"><div class="big">&#x1F943;</div><p>No submissions yet.</p></div>`;return;}
+  const spiritCfg=SPIRIT_CONFIGS[cfg.spiritType]||SPIRIT_CONFIGS['tequila-mezcal'];
+  function chipRow(n,catId){const sel=n[catId]?.selected;if(!sel||(Array.isArray(sel)&&!sel.length))return '';return `<div class="chip-list">${(Array.isArray(sel)?sel:[sel]).map(x=>`<span class="mini-chip">${x}</span>`).join('')}</div>`;}
+  function noteRow(n,catId,label){const chips=chipRow(n,catId);const txt=n[catId]?.text;if(!chips&&!txt)return '';return `<div class="note-row"><div class="note-label">${label}</div><div class="note-value">${chips}${txt?`<span>${txt}</span>`:''}</div></div>`;}
+  function renderCard(sub,showSpirit=false){
+    const s=cfg.spirits.find(x=>x.label===sub.spiritId);
+    const n=sub.notes||{};
+    const catRows=spiritCfg.categories.map(cat=>noteRow(n,cat.id,cat.title)).join('');
+    const spiritDisplay=showSpirit?` <span style="color:var(--gold);font-weight:600">· ${s?.label}</span>`:'';
+    return `<div class="submission-card"><div class="submission-header"><div class="submission-person">${sub.person}${spiritDisplay}</div>${n.overall?.score?`<div class="submission-score">${n.overall.score}<span class="denom">/10</span></div>`:''}</div><hr class="divider">${catRows}${n.overall?.text?`<div class="note-row"><div class="note-label">Notes</div><div class="note-value">${n.overall.text}</div></div>`:''}</div>`;
+  }
+  if(resultTab==='spirit'){
+    c.innerHTML=cfg.spirits.map(s=>{const subs=SUBMISSIONS.filter(sub=>sub.spiritId===s.label);if(!subs.length)return '';const name=cfg.revealed?(s.revealName||s.label):s.label;return `<div class="spirit-group"><div class="spirit-group-header"><div class="spirit-group-letter">${s.label}</div><div class="spirit-group-name">${name}</div><div class="spirit-group-count">${subs.length}/${cfg.people.length}</div></div>${subs.map(sub=>renderCard(sub)).join('')}</div>`;}).join('');
+  }else{
+    c.innerHTML=cfg.people.map(person=>{const subs=SUBMISSIONS.filter(sub=>sub.person===person);if(!subs.length)return '';return `<div class="spirit-group"><div class="spirit-group-header"><div class="spirit-group-name" style="font-size:1.3rem">${person}</div><div class="spirit-group-count">${subs.length}/${cfg.spirits.length}</div></div>${subs.map(sub=>renderCard(sub,true)).join('')}</div>`;}).join('');
+  }
+}
+
+document.querySelectorAll('.nav-tab[data-view]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab[data-view]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(`view-${b.dataset.view}`).classList.add('active');
+    if(b.dataset.view==='results') buildResults();
+  });
+});
+document.querySelectorAll('.result-tab[data-rtab]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.result-tab[data-rtab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+    resultTab=b.dataset.rtab;buildDetail();
+  });
+});
+document.getElementById('refreshBtn').addEventListener('click',async()=>{
+  try{SUBMISSIONS=await loadSubmissions();buildResults();updateDots();showToast('Updated!');}
+  catch{showToast('Refresh failed',true);}
+});
+document.getElementById('codeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')joinSession();});
+
+let toastTimer;
+function showToast(msg,error=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(error?' error':'');t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
+function showLoading(show){document.getElementById('loading').classList.toggle('hidden',!show);}
+
+(async()=>{
+  SESSION_CODE=getCodeFromURL();
+  if(SESSION_CODE){await loadSession();}
+  else{showLoading(false);document.getElementById('codeScreen').style.display='block';}
+})();
+</script>
+</body>
+</html>

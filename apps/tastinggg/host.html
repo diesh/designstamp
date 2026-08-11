@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tastinggg — Host Setup</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #1a0f00;
+      --card: #2a1800;
+      --border: #6a4818;
+      --gold: #d4a853;
+      --gold-hover: #e8be6a;
+      --gold-dim: #c08830;
+      --gold-tint: rgba(212,168,83,0.15);
+      --cream: #f5e6c8;
+      --muted: #c09848;
+      --btn-text: #1a0f00;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--cream);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header { text-align: center; padding: 30px 0 20px; }
+    .logo { font-size: 2rem; font-weight: 800; color: var(--gold); letter-spacing: -1px; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 12px; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; max-width: 560px; margin: 0 auto 24px;
+    }
+    .card h2 { font-size: 1.2rem; color: var(--cream); margin-bottom: 20px; font-weight: 800; }
+
+    label { display: block; font-size: 0.9rem; color: var(--cream); font-weight: 700; margin-bottom: 8px; }
+
+    input[type="text"] {
+      width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: 10px;
+      color: var(--cream); padding: 14px 16px; font-size: 1rem; margin-bottom: 20px;
+      outline: none; transition: border-color 0.2s; font-family: inherit;
+    }
+    input[type="text"]:focus { border-color: var(--gold); }
+    input[type="text"]::placeholder { color: var(--muted); }
+
+    .spirit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
+    .spirit-pill {
+      background: var(--bg); border: 2px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; cursor: pointer; text-align: center; font-size: 0.9rem;
+      color: var(--cream); transition: all 0.2s; user-select: none;
+    }
+    .spirit-pill:hover { border-color: var(--gold); color: var(--gold); }
+    .spirit-pill.selected { background: var(--gold-tint); border-color: var(--gold); color: var(--gold); font-weight: 600; }
+    .spirit-emoji { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+
+    .count-row { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .count-label { font-size: 0.9rem; color: var(--cream); font-weight: 600; white-space: nowrap; }
+    .count-btn {
+      width: 36px; height: 36px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--gold); font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0;
+    }
+    .count-btn:hover { background: var(--border); }
+    .count-display { font-size: 1.4rem; font-weight: 700; color: var(--gold); min-width: 28px; text-align: center; }
+
+    .spirit-names { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
+    .spirit-name-field { position: relative; }
+    .spirit-name-field .spirit-label {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 0.9rem; color: var(--gold); font-weight: 800; pointer-events: none;
+    }
+    .spirit-name-field input { padding-left: 30px; margin-bottom: 0; }
+
+    .people-section { margin-bottom: 24px; }
+    .people-input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .people-input-row input { margin-bottom: 0; flex: 1; }
+    .add-btn {
+      background: var(--border); border: 1px solid var(--gold); border-radius: 10px;
+      color: var(--gold); padding: 0 18px; font-size: 1.2rem; cursor: pointer;
+      flex-shrink: 0; transition: background 0.2s;
+    }
+    .add-btn:hover { background: var(--gold-tint); }
+
+    .add-me-btn {
+      background: none; border: 1px dashed var(--gold-dim); border-radius: 8px;
+      color: var(--muted); font-size: 0.8rem; padding: 5px 12px; cursor: pointer;
+      margin-bottom: 12px; transition: all 0.2s; display: inline-block;
+    }
+    .add-me-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .add-me-hint { font-size: 0.75rem; color: var(--gold-dim); margin-bottom: 8px; }
+
+    .people-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .person-tag {
+      background: var(--border); border: 1px solid var(--gold-dim); border-radius: 20px;
+      padding: 6px 14px; font-size: 0.9rem; color: var(--cream);
+      display: flex; align-items: center; gap: 8px;
+      max-width: 200px;
+    }
+    .person-tag-name {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      min-width: 0; flex: 1;
+    }
+    .person-tag .remove { color: var(--gold-dim); cursor: pointer; font-size: 0.8rem; line-height: 1; flex-shrink: 0; }
+    .person-tag .remove:hover { color: var(--gold); }
+
+    .create-btn {
+      width: 100%; background: var(--gold); border: none; border-radius: 12px;
+      color: var(--btn-text); padding: 16px; font-size: 1.1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .create-btn:hover { background: var(--gold-hover); }
+    .create-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .room-code-display {
+      text-align: center; padding: 24px; background: var(--bg);
+      border-radius: 12px; margin-bottom: 20px;
+    }
+    .room-code-label { font-size: 0.8rem; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .room-code { font-size: 3rem; font-weight: 800; color: var(--gold); letter-spacing: 0.25em; }
+    .guest-url { font-size: 0.82rem; color: var(--gold-dim); margin-top: 10px; word-break: break-all; }
+
+    .qr-container { display: flex; justify-content: center; margin: 16px 0; }
+    #qr-canvas { border-radius: 8px; border: 3px solid var(--border); }
+
+    .copy-btn {
+      width: 100%; background: var(--border); border: 1px solid var(--gold); border-radius: 12px;
+      color: var(--gold); padding: 12px; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s; margin-bottom: 10px;
+    }
+    .copy-btn:hover { background: var(--gold-tint); }
+
+    .edit-btn {
+      width: 100%; background: none; border: 1px solid var(--border); border-radius: 12px;
+      color: var(--muted); padding: 10px; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .edit-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+    .progress-table-wrap { overflow-x: auto; }
+    .progress-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .progress-table th {
+      color: var(--gold-dim); padding: 8px 10px; text-align: center;
+      font-weight: 600; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border);
+    }
+    .progress-table th:first-child { text-align: left; }
+    .progress-table td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--card); color: var(--cream); }
+    .progress-table td:first-child {
+      text-align: left; max-width: 120px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .check { color: #4caf50; font-size: 1rem; }
+    .dot { color: var(--border); }
+    .refresh-note { font-size: 0.75rem; color: var(--gold-dim); text-align: right; margin-top: 8px; }
+
+    .reveal-section { border-top: 1px solid var(--border); padding-top: 24px; }
+    .reveal-section h3 { color: var(--gold); font-size: 1rem; margin-bottom: 8px; }
+    .reveal-section p { font-size: 0.85rem; color: var(--gold-dim); margin-bottom: 16px; }
+    .reveal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+    .reveal-field { position: relative; }
+    .reveal-field .spirit-label {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 0.85rem; color: var(--gold-dim); font-weight: 700; pointer-events: none;
+    }
+    .reveal-field input { padding-left: 30px; margin-bottom: 0; }
+
+    .reveal-btn {
+      width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold-hover)); border: none;
+      border-radius: 12px; color: var(--btn-text); padding: 16px; font-size: 1.1rem;
+      font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+    }
+    .reveal-btn:hover { opacity: 0.9; }
+    .reveal-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .revealed-banner {
+      background: #1a3a0f; border: 1px solid #4caf50; border-radius: 12px;
+      padding: 16px; text-align: center; color: #4caf50; font-weight: 600;
+      margin-bottom: 16px; display: none;
+    }
+
+    .error-msg { color: #ff6b6b; font-size: 0.85rem; margin-bottom: 14px; }
+
+    .gate-code {
+      text-align: center; font-size: 1.8rem; font-weight: 800;
+      letter-spacing: 0.2em; text-transform: uppercase;
+    }
+    .gate-divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+    .gate-link { color: var(--muted); font-size: 0.9rem; text-decoration: none; display: block; text-align: center; }
+    .gate-link:hover { color: var(--gold); }
+
+    @media (max-width: 400px) {
+      .spirit-names, .reveal-grid { grid-template-columns: 1fr; }
+      .room-code { font-size: 2.2rem; letter-spacing: 0.15em; }
+      .person-tag { max-width: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">Tastinggg</div>
+    <div class="subtitle" id="page-subtitle">Host Setup</div>
+  </div>
+
+  <!-- GATE VIEW -->
+  <div id="gate-view" style="display:none">
+    <div class="card" style="text-align:center">
+      <h2 style="margin-bottom:8px">Returning host?</h2>
+      <p style="color:var(--gold-dim);font-size:0.9rem;margin-bottom:20px">Enter your session code to pick up where you left off.</p>
+      <input type="text" id="recover-input" class="gate-code" placeholder="ABC123" maxlength="6"
+        autocomplete="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter')recoverSession()">
+      <button class="create-btn" style="margin-top:4px" onclick="recoverSession()">Recover Session &rarr;</button>
+      <div class="gate-divider"></div>
+      <a href="index.html" class="gate-link">New host? Buy access &rarr;</a>
+    </div>
+  </div>
+
+  <!-- SETUP / EDIT VIEW -->
+  <div id="setup-view" style="display:none">
+    <div class="card">
+      <h2 id="setup-title">Event Details</h2>
+
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <label style="margin-bottom:0">Event Name</label>
+        <span id="name-counter" style="font-size:0.75rem;color:var(--gold-dim)">0 / 30</span>
+      </div>
+      <input type="text" id="event-name" placeholder="e.g. Friday Night Tequila" maxlength="30" oninput="document.getElementById('name-counter').textContent=this.value.length+' / 30'">
+
+      <label>Spirit Type</label>
+      <div class="spirit-grid">
+        <div class="spirit-pill" data-type="tequila-mezcal" onclick="selectSpiritPill(this)">
+          <span class="spirit-emoji">🥃</span>Tequila &amp; Mezcal
+        </div>
+        <div class="spirit-pill" data-type="red-wine" onclick="selectSpiritPill(this)">
+          <span class="spirit-emoji">🍷</span>Red Wine
+        </div>
+        <div class="spirit-pill" data-type="white-wine" onclick="selectSpiritPill(this)">
+          <span class="spirit-emoji">🥂</span>White Wine
+        </div>
+        <div class="spirit-pill" data-type="port" onclick="selectSpiritPill(this)">
+          <span class="spirit-emoji">🍶</span>Port
+        </div>
+        <div class="spirit-pill" data-type="whiskey-scotch" onclick="selectSpiritPill(this)">
+          <span class="spirit-emoji">🥃</span>Whiskey / Scotch
+        </div>
+        <div class="spirit-pill" data-type="beer" onclick="selectSpiritPill(this)">
+          <span class="spirit-emoji">🍺</span>Beer
+        </div>
+      </div>
+
+      <label>Number of Spirits to Taste</label>
+      <div class="count-row">
+        <span class="count-label">How many?</span>
+        <button class="count-btn" onclick="changeCount(-1)">&#8722;</button>
+        <span class="count-display" id="count-display">4</span>
+        <button class="count-btn" onclick="changeCount(1)">+</button>
+      </div>
+
+      <label>Spirit Blind Labels (guests see A, B, C…)</label>
+      <div class="spirit-names" id="spirit-names"></div>
+
+      <label>Who's Tasting?</label>
+      <p style="font-size:0.8rem;color:var(--muted);margin:0 0 16px">Add yourself if you're tasting too.</p>
+      <div class="people-section">
+        <div class="people-input-row">
+          <input type="text" id="person-input" placeholder="Add a name…" maxlength="30"
+            onkeydown="if(event.key==='Enter')addPerson()">
+          <button class="add-btn" onclick="addPerson()">+</button>
+        </div>
+        <button class="add-me-btn" id="add-me-btn" onclick="addMeAsPerson()" style="display:none">+ Add me</button>
+        <div class="people-tags" id="people-tags"></div>
+      </div>
+
+      <div class="error-msg" id="form-error" style="display:none"></div>
+      <button class="create-btn" id="save-btn" onclick="saveSession()">Create Session &rarr;</button>
+    </div>
+  </div>
+
+  <!-- CONTROL ROOM -->
+  <div id="control-view" style="display:none">
+    <div class="card">
+      <div class="room-code-display">
+        <div class="room-code-label">Room Code</div>
+        <div class="room-code" id="room-code-text">——</div>
+        <div class="guest-url" id="guest-url-text"></div>
+      </div>
+      <div class="qr-container"><canvas id="qr-canvas" style="display:none"></canvas></div>
+      <button class="copy-btn" onclick="copyLink()">&#128203; Copy Guest Link</button>
+      <button class="edit-btn" onclick="openEditSetup()">&#9998; Edit Session Setup</button>
+    </div>
+
+    <div class="card">
+      <h2>Progress</h2>
+      <div class="progress-table-wrap">
+        <table class="progress-table">
+          <thead id="progress-head"></thead>
+          <tbody id="progress-body"></tbody>
+        </table>
+      </div>
+      <div class="refresh-note" id="refresh-note">Auto-refreshes every 15s</div>
+    </div>
+
+    <div class="card">
+      <div class="reveal-section">
+        <h3>Reveal the Spirits</h3>
+        <p>Enter the real names below, then reveal to all guests at once.</p>
+        <div class="reveal-grid" id="reveal-grid"></div>
+        <div class="revealed-banner" id="revealed-banner">🎉 Revealed! Guests can now see the results.</div>
+        <button class="reveal-btn" id="reveal-btn" onclick="revealSpirits()">🎉 Reveal to Everyone</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const FIREBASE = 'https://cocktail-49fc4-default-rtdb.firebaseio.com';
+    const LABELS = ['A','B','C','D','E','F','G','H'];
+
+    const SPIRIT_THEMES = {
+      'tequila-mezcal': { bg:'#0f0800',card:'#271800',border:'#6a4818',gold:'#d4a020',goldHover:'#e8b430',goldDim:'#c08820',goldTint:'rgba(212,160,32,0.2)',cream:'#f5e6c8',muted:'#c09848',btnText:'#0f0800' },
+      'red-wine':       { bg:'#0e0004',card:'#260010',border:'#8a1838',gold:'#e03055',goldHover:'#f04868',goldDim:'#c82848',goldTint:'rgba(200,40,72,0.2)',cream:'#f5d0d8',muted:'#d08898',btnText:'#fff' },
+      'white-wine':     { bg:'#f0ece4',card:'#faf7f2',border:'#bfb8a8',gold:'#7a6c3c',goldHover:'#9a8a50',goldDim:'#5c5028',goldTint:'rgba(122,108,60,0.2)',cream:'#1a1610',muted:'#4a4030',btnText:'#1a1610' },
+      'port':           { bg:'#08000e',card:'#1e0030',border:'#6a20a0',gold:'#c060e0',goldHover:'#d878f0',goldDim:'#a848c8',goldTint:'rgba(180,80,220,0.2)',cream:'#f0d0f8',muted:'#c088d8',btnText:'#fff' },
+      'whiskey-scotch': { bg:'#100800',card:'#2e1c00',border:'#7a5020',gold:'#e06020',goldHover:'#f07030',goldDim:'#d05818',goldTint:'rgba(224,96,32,0.2)',cream:'#f5dfc0',muted:'#c89050',btnText:'#100800' },
+      'beer':           { bg:'#080c00',card:'#1e2a00',border:'#606800',gold:'#d8d000',goldHover:'#ece800',goldDim:'#b0b000',goldTint:'rgba(210,200,0,0.2)',cream:'#f5f0c8',muted:'#c0bc50',btnText:'#080c00' },
+    };
+
+    function applyTheme(type) {
+      const t = SPIRIT_THEMES[type]; if(!t) return;
+      const s = document.documentElement.style;
+      s.setProperty('--bg', t.bg); s.setProperty('--card', t.card);
+      s.setProperty('--border', t.border); s.setProperty('--gold', t.gold);
+      s.setProperty('--gold-hover', t.goldHover); s.setProperty('--gold-dim', t.goldDim);
+      s.setProperty('--gold-tint', t.goldTint); s.setProperty('--cream', t.cream);
+      s.setProperty('--muted', t.muted); s.setProperty('--btn-text', t.btnText);
+    }
+
+    let spiritType = null;
+    let spiritCount = 4;
+    let people = [];
+    let sessionCode = null;
+    let sessionConfig = null;
+    let isEditMode = false;
+
+    function generateCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      return code;
+    }
+
+    function selectSpiritPill(el) {
+      document.querySelectorAll('.spirit-pill').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+      spiritType = el.dataset.type;
+      applyTheme(spiritType);
+    }
+
+    function changeCount(delta) {
+      const next = spiritCount + delta;
+      if (next < 2 || next > 8) return;
+      spiritCount = next;
+      document.getElementById('count-display').textContent = spiritCount;
+      renderSpiritNames();
+    }
+
+    function renderSpiritNames(existing) {
+      const c = document.getElementById('spirit-names');
+      if (!c) return;
+      c.innerHTML = '';
+      for (let i = 0; i < spiritCount; i++) {
+        const div = document.createElement('div');
+        div.className = 'spirit-name-field';
+        const val = existing && existing[i] ? existing[i].codeName : '';
+        div.innerHTML = `<span class="spirit-label">${LABELS[i]}</span><input type="text" id="sname-${i}" placeholder="e.g. Casa Dragones" maxlength="40" value="${val.replace(/"/g, '&quot;')}">`;
+        c.appendChild(div);
+      }
+    }
+
+    function addPerson() {
+      const input = document.getElementById('person-input');
+      const name = input.value.trim();
+      if (!name || people.map(p => p.toLowerCase()).includes(name.toLowerCase())) { input.value = ''; return; }
+      people.push(name);
+      input.value = '';
+      renderTags();
+    }
+
+    function addMeAsPerson() {
+      const btn = document.getElementById('add-me-btn');
+      const myName = btn.dataset.name;
+      if (!myName) return;
+      if (!people.map(p => p.toLowerCase()).includes(myName.toLowerCase())) {
+        people.push(myName);
+        renderTags();
+      }
+      btn.style.display = 'none';
+    }
+
+    function removePerson(name) {
+      people = people.filter(p => p !== name);
+      renderTags();
+      // show "add me" button again if the removed person was the host
+      const btn = document.getElementById('add-me-btn');
+      if (btn.dataset.name && btn.dataset.name === name) btn.style.display = 'inline-block';
+    }
+
+    function renderTags() {
+      const c = document.getElementById('people-tags');
+      c.innerHTML = '';
+      people.forEach(name => {
+        const tag = document.createElement('div');
+        tag.className = 'person-tag';
+        const safeName = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        tag.innerHTML = `<span class="person-tag-name" title="${name.replace(/"/g,'&quot;')}">${name}</span><span class="remove" onclick="removePerson('${safeName}')">&#10005;</span>`;
+        c.appendChild(tag);
+      });
+    }
+
+    function openSetupForm(config) {
+      isEditMode = !!config;
+      document.getElementById('setup-title').textContent = isEditMode ? 'Edit Session' : 'Event Details';
+      document.getElementById('save-btn').textContent = isEditMode ? 'Save Changes →' : 'Create Session →';
+
+      if (config) {
+        const enVal = config.eventName || '';
+      document.getElementById('event-name').value = enVal;
+      document.getElementById('name-counter').textContent = enVal.length + ' / 30';
+        spiritType = config.spiritType || null;
+        spiritCount = config.spirits ? config.spirits.length : 4;
+        people = config.people ? [...config.people] : [];
+
+        document.getElementById('count-display').textContent = spiritCount;
+        if (spiritType) {
+          document.querySelectorAll('.spirit-pill').forEach(p => {
+            p.classList.toggle('selected', p.dataset.type === spiritType);
+          });
+          applyTheme(spiritType);
+        }
+        renderSpiritNames(config.spirits);
+        renderTags();
+      } else {
+        document.getElementById('event-name').value = '';
+        spiritType = null;
+        spiritCount = 4;
+        people = [];
+        document.getElementById('count-display').textContent = 4;
+        document.querySelectorAll('.spirit-pill').forEach(p => p.classList.remove('selected'));
+        renderSpiritNames();
+        renderTags();
+      }
+
+      document.getElementById('gate-view').style.display = 'none';
+      document.getElementById('control-view').style.display = 'none';
+      document.getElementById('setup-view').style.display = 'block';
+    }
+
+    function openEditSetup() {
+      openSetupForm(sessionConfig);
+    }
+
+    async function saveSession() {
+      const eventName = document.getElementById('event-name').value.trim();
+      const errEl = document.getElementById('form-error');
+      errEl.style.display = 'none';
+
+      if (!eventName) { showError('Please enter an event name.'); return; }
+      if (!spiritType) { showError('Please select a spirit type.'); return; }
+      if (people.length < 2) { showError('Add at least 2 people to the tasting.'); return; }
+
+      const spirits = [];
+      for (let i = 0; i < spiritCount; i++) {
+        const el = document.getElementById(`sname-${i}`);
+        spirits.push({ label: LABELS[i], codeName: el ? el.value.trim() : '' });
+      }
+
+      if (isEditMode && sessionCode) {
+        // preserve revealed state and timestamps from existing config
+        const update = {
+          ...sessionConfig,
+          eventName,
+          spiritType,
+          spirits,
+          people,
+          updatedAt: Date.now()
+        };
+        try {
+          const res = await fetch(`${FIREBASE}/sessions/${sessionCode}/config.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(update)
+          });
+          if (!res.ok) throw new Error();
+          sessionConfig = update;
+          applyTheme(spiritType);
+          showControlRoom();
+        } catch (e) {
+          showError('Could not save changes. Check your connection and try again.');
+        }
+      } else {
+        const code = generateCode();
+        const config = { eventName, spiritType, spirits, people, revealed: false, createdAt: Date.now() };
+        try {
+          const res = await fetch(`${FIREBASE}/sessions/${code}/config.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+          });
+          if (!res.ok) throw new Error();
+          sessionCode = code;
+          sessionConfig = config;
+          history.replaceState(null, '', `?code=${code}`);
+          showControlRoom();
+        } catch (e) {
+          showError('Could not create session. Check your connection and try again.');
+        }
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('form-error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function showControlRoom() {
+      document.getElementById('gate-view').style.display = 'none';
+      document.getElementById('setup-view').style.display = 'none';
+      document.getElementById('control-view').style.display = 'block';
+
+      spiritCount = sessionConfig.spirits.length;
+
+      const guestUrl = location.origin + location.pathname.replace('host.html', 'app.html') + '?code=' + sessionCode;
+      document.getElementById('room-code-text').textContent = sessionCode;
+      document.getElementById('guest-url-text').textContent = guestUrl;
+
+      const goldColor = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#d4a853';
+      const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#1a0f00';
+      const canvas = document.getElementById('qr-canvas');
+      // clear old QR before re-rendering
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      QRCode.toCanvas(canvas, guestUrl, {
+        width: 180,
+        color: { dark: goldColor, light: bgColor }
+      }, () => { canvas.style.display = 'block'; });
+
+      renderRevealGrid();
+      loadProgress();
+    }
+
+    function renderRevealGrid() {
+      const c = document.getElementById('reveal-grid');
+      c.innerHTML = '';
+      for (let i = 0; i < spiritCount; i++) {
+        const div = document.createElement('div');
+        div.className = 'reveal-field';
+        const spirit = sessionConfig && sessionConfig.spirits[i];
+        const ph = spirit && spirit.codeName ? spirit.codeName : 'Real name…';
+        const val = spirit && spirit.revealName ? spirit.revealName : '';
+        div.innerHTML = `<span class="spirit-label">${LABELS[i]}</span><input type="text" id="reveal-${i}" placeholder="${ph}" maxlength="40" value="${val.replace(/"/g, '&quot;')}">`;
+        c.appendChild(div);
+      }
+    }
+
+    function copyLink() {
+      const guestUrl = location.origin + location.pathname.replace('host.html', 'app.html') + '?code=' + sessionCode;
+      const btn = document.querySelector('.copy-btn');
+      const confirm = () => { btn.textContent = '✓ Copied!'; setTimeout(() => { btn.innerHTML = '&#128203; Copy Guest Link'; }, 2000); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(guestUrl).then(confirm).catch(() => fallbackCopy(guestUrl, confirm));
+      } else {
+        fallbackCopy(guestUrl, confirm);
+      }
+    }
+    function fallbackCopy(text, onSuccess) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { document.execCommand('copy'); onSuccess(); } catch {}
+      document.body.removeChild(ta);
+    }
+
+    let progressInterval = null;
+
+    async function loadProgress() {
+      if (!sessionCode || !sessionConfig) return;
+      try {
+        const res = await fetch(`${FIREBASE}/sessions/${sessionCode}/submissions.json`);
+        const data = await res.json();
+        renderProgressTable(data || {});
+        document.getElementById('refresh-note').textContent = 'Updated ' + new Date().toLocaleTimeString();
+      } catch (e) { /* silent */ }
+    }
+
+    function renderProgressTable(submissions) {
+      const config = sessionConfig;
+      const head = document.getElementById('progress-head');
+      const body = document.getElementById('progress-body');
+      let headHtml = '<tr><th>Person</th>';
+      config.spirits.forEach(s => { headHtml += `<th>${s.label}</th>`; });
+      headHtml += '</tr>';
+      head.innerHTML = headHtml;
+      let bodyHtml = '';
+      config.people.forEach(person => {
+        bodyHtml += `<tr><td title="${person.replace(/"/g,'&quot;')}">${person}</td>`;
+        config.spirits.forEach(spirit => {
+          const key = `${person}_${spirit.label}`;
+          bodyHtml += submissions[key] !== undefined
+            ? '<td><span class="check">✓</span></td>'
+            : '<td><span class="dot">&middot;</span></td>';
+        });
+        bodyHtml += '</tr>';
+      });
+      body.innerHTML = bodyHtml;
+    }
+
+    async function revealSpirits() {
+      const btn = document.getElementById('reveal-btn');
+      btn.disabled = true;
+      const updatedSpirits = sessionConfig.spirits.map((s, i) => {
+        const input = document.getElementById(`reveal-${i}`);
+        const realName = input ? input.value.trim() : '';
+        return { ...s, revealName: realName || s.codeName || s.label };
+      });
+      const update = { ...sessionConfig, spirits: updatedSpirits, revealed: true, revealedAt: Date.now() };
+      try {
+        const res = await fetch(`${FIREBASE}/sessions/${sessionCode}/config.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(update)
+        });
+        if (!res.ok) throw new Error();
+        sessionConfig = update;
+        document.getElementById('revealed-banner').style.display = 'block';
+        btn.style.display = 'none';
+      } catch (e) {
+        btn.disabled = false;
+        alert('Reveal failed. Please try again.');
+      }
+    }
+
+    function recoverSession() {
+      const code = document.getElementById('recover-input').value.trim().toUpperCase();
+      if (code.length !== 6) return;
+      window.location.href = 'host.html?code=' + code;
+    }
+
+    async function restoreSession(code) {
+      try {
+        const res = await fetch(`${FIREBASE}/sessions/${code}/config.json`);
+        const config = await res.json();
+        if (!config || !config.eventName) throw new Error();
+        sessionCode = code;
+        sessionConfig = config;
+        spiritCount = config.spirits.length;
+        applyTheme(config.spiritType);
+        showControlRoom();
+        if (config.revealed) {
+          document.getElementById('revealed-banner').style.display = 'block';
+          document.getElementById('reveal-btn').style.display = 'none';
+        }
+        // start auto-refresh
+        if (progressInterval) clearInterval(progressInterval);
+        progressInterval = setInterval(loadProgress, 15000);
+      } catch (e) {
+        document.getElementById('gate-view').style.display = 'block';
+        document.getElementById('recover-input').value = code;
+        document.getElementById('recover-input').style.borderColor = '#c04040';
+      }
+    }
+
+    // Init
+    renderSpiritNames();
+    const params = new URLSearchParams(location.search);
+    const existingCode = params.get('code');
+    const paid = params.get('paid');
+    const hostName = params.get('name'); // optional: ?name=Gagan to auto-show "add me"
+
+    if (hostName) {
+      const btn = document.getElementById('add-me-btn');
+      btn.textContent = `+ Add me (${hostName})`;
+      btn.dataset.name = hostName;
+      btn.style.display = 'inline-block';
+    }
+
+    if (existingCode) {
+      restoreSession(existingCode.toUpperCase());
+    } else if (paid) {
+      document.getElementById('page-subtitle').textContent = paid === 'lifetime' ? 'Host Setup — Lifetime Member' : 'Host Setup';
+      openSetupForm(null);
+      // start auto-refresh once session exists
+      progressInterval = setInterval(() => { if (sessionCode) loadProgress(); }, 15000);
+    } else {
+      document.getElementById('gate-view').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
