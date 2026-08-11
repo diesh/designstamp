@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>prompt DUH</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+  <!-- SETUP SCREEN -->
+  <div id="setup-screen" class="screen">
+    <div class="setup-card">
+      <div class="logo">
+        <span class="logo-simple">simple</span>
+        <div class="logo-stack">
+          <span class="logo-prompt">PROMPT</span>
+          <span class="logo-duh">DUH</span>
+        </div>
+      </div>
+      <p class="subtitle">Paste your script, or load it from a Google Doc.</p>
+
+      <div id="source-toggle" class="source-toggle">
+        <button type="button" id="mode-paste-btn" class="source-btn active">Paste text</button>
+        <button type="button" id="mode-gdoc-btn" class="source-btn">Use a Google Doc (requires sign in w Google)</button>
+      </div>
+
+      <div id="paste-section">
+        <textarea id="paste-textarea" rows="8" placeholder="Paste or type your script here"></textarea>
+        <button id="use-text-btn" class="btn primary">Use this text</button>
+      </div>
+
+      <div id="gdoc-section" class="hidden">
+        <div id="signin-row">
+          <span id="signed-in-as" class="signed-in-as"></span>
+        </div>
+        <p class="privacy-note">Nothing stored on my end, just your doc link and settings saved on your device.</p>
+
+        <div id="doc-row" class="hidden">
+          <label for="doc-url">Google Doc link</label>
+          <input id="doc-url" type="text" placeholder="Paste the Google Doc URL here" />
+          <button id="load-btn" class="btn primary">Load Doc</button>
+        </div>
+      </div>
+
+      <p id="status-msg" class="status-msg"></p>
+      <p id="doc-stats" class="doc-stats hidden"></p>
+
+      <button id="edit-toggle-btn" class="btn small hidden">Edit script text</button>
+      <div id="edit-row" class="hidden">
+        <textarea id="edit-textarea" rows="8"></textarea>
+        <div class="edit-actions">
+          <button id="save-edit-btn" class="btn primary">Save changes</button>
+          <button id="cancel-edit-btn" class="btn small">Cancel</button>
+        </div>
+        <p class="hint">Edits apply for this session only, they don't change the Google Doc itself.</p>
+      </div>
+
+      <div id="controls-row" class="hidden">
+        <div class="format-ribbon">
+          <div class="ribbon-group">
+            <label for="font-family">Font</label>
+            <select id="font-family">
+              <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">Default</option>
+              <option value="Georgia, 'Times New Roman', serif">Serif</option>
+              <option value="'Courier New', Courier, monospace">Monospace</option>
+            </select>
+          </div>
+
+          <div class="ribbon-divider"></div>
+
+          <div class="ribbon-group">
+            <label for="font-size">Size</label>
+            <select id="font-size">
+              <option value="32">Small</option>
+              <option value="48" selected>Medium</option>
+              <option value="64">Large</option>
+              <option value="78">Huge</option>
+            </select>
+          </div>
+
+          <div class="ribbon-divider"></div>
+
+          <div class="ribbon-group">
+            <label for="line-height">Spacing</label>
+            <select id="line-height">
+              <option value="1.3">Snug</option>
+              <option value="1.5" selected>Cozy</option>
+              <option value="1.8">Relaxed</option>
+              <option value="2.1">Airy</option>
+            </select>
+          </div>
+
+          <div class="ribbon-divider"></div>
+
+          <div class="ribbon-group ribbon-align">
+            <label>Align</label>
+            <div class="align-toggle">
+              <button type="button" id="align-left-btn" class="align-btn" title="Align left"><span class="align-icon align-icon-left"></span></button>
+              <button type="button" id="align-center-btn" class="align-btn active" title="Align center"><span class="align-icon align-icon-center"></span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-box">
+          <p class="preview-label">Preview</p>
+          <div id="text-preview">The quick brown fox jumps over the lazy dog. Your script will scroll and look like this.</div>
+        </div>
+
+        <div class="control speed-control">
+          <label for="speed">Scroll speed</label>
+          <div class="speed-track">
+            <img class="speed-icon" src="https://api.iconify.design/mdi:tortoise.svg?color=%23ffffff" alt="Slower" width="20" height="20" />
+            <input id="speed" type="range" min="1" max="20" step="1" value="6" />
+            <img class="speed-icon" src="https://api.iconify.design/mdi:rabbit.svg?color=%23ffffff" alt="Faster" width="20" height="20" />
+          </div>
+        </div>
+
+        <div class="control checkbox-control">
+          <label><input id="mirror-toggle" type="checkbox" /> Mirror horizontally (for beam-splitter rigs)</label>
+        </div>
+        <div class="control checkbox-control">
+          <label><input id="flip-toggle" type="checkbox" /> Also flip vertically (if your rig mounts the tablet rotated 180°)</label>
+        </div>
+        <div class="control checkbox-control">
+          <label><input id="countdown-toggle" type="checkbox" checked /> 3-2-1 countdown before start</label>
+        </div>
+        <button id="start-btn" class="btn primary large">Start The PromptDuh!</button>
+      </div>
+
+      <div class="tips">
+        <div class="tip"><span class="tip-key">␣</span><span class="tip-desc">Play / pause</span></div>
+        <div class="tip"><span class="tip-key">▲▼</span><span class="tip-desc">Speed</span></div>
+        <div class="tip"><span class="tip-key">◀▶</span><span class="tip-desc">Nudge position</span></div>
+        <div class="tip"><span class="tip-key tip-key-text">ESC</span><span class="tip-desc">Exit</span></div>
+      </div>
+      <p class="hint">Bluetooth remotes with these keys work the same way. Your doc link and settings are saved to your device so you can pick up where you left off.</p>
+
+      <div class="footer-links">
+        <a href="https://buymeacoffee.com/DeelishushMe" target="_blank" rel="noopener" class="footer-link footer-link-coffee">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 9h13a1 1 0 0 1 1 1v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M18 10h1.5a2.5 2.5 0 0 1 0 5H18" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8 3.5c-.6.6-.6 1.2 0 1.8s.6 1.2 0 1.8M12 3.5c-.6.6-.6 1.2 0 1.8s.6 1.2 0 1.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M3 21h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Buy me a coffee</span>
+          <span class="coffee-heart">&hearts;</span>
+        </a>
+        <span class="footer-divider">&middot;</span>
+        <button type="button" id="signup-toggle-btn" class="footer-link footer-link-btn">Sign up for more small apps</button>
+      </div>
+      <form id="signup-inline-form" class="signup-form hidden">
+        <input id="signup-email" type="email" name="email" placeholder="you@example.com" required />
+        <button type="submit" class="btn primary small">Sign up</button>
+      </form>
+      <p id="signup-thanks" class="signup-thanks hidden">Thanks, you're on the list.</p>
+
+      <div class="legal-footer">
+        <p class="privacy-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          All the data is yours, I keep nothing
+        </p>
+        <a href="privacy.html" class="footer-link">Privacy Policy</a>
+        <span class="footer-divider">&middot;</span>
+        <a href="terms.html" class="footer-link">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- COUNTDOWN OVERLAY -->
+  <div id="countdown-screen" class="screen hidden">
+    <div id="countdown-number">&bull;&bull;&bull;</div>
+  </div>
+
+  <!-- TELEPROMPTER SCREEN -->
+  <div id="prompter-screen" class="screen hidden">
+    <div id="prompter-viewport">
+      <div id="prompter-text"></div>
+    </div>
+    <div id="center-line"></div>
+    <div id="prompter-hud">
+      <button id="exit-btn" class="btn small hud-btn" title="Exit" aria-label="Exit">
+        <span class="hud-btn-esc">ESC</span>
+      </button>
+      <button id="playpause-btn" class="btn small hud-btn" title="Play / pause" aria-label="Play / pause">
+        <span id="playpause-icon" class="hud-btn-icon">⏸</span>
+      </button>
+      <button id="restart-btn" class="btn small hud-btn" title="Start over" aria-label="Start over">
+        <span class="hud-btn-doh">D'oh!</span>
+      </button>
+      <button id="fullscreen-btn" class="btn small hud-btn" title="Toggle fullscreen" aria-label="Toggle fullscreen">
+        <span class="fullscreen-icon">
+          <span class="corner-tl"></span>
+          <span class="corner-tr"></span>
+          <span class="corner-bl"></span>
+          <span class="corner-br"></span>
+        </span>
+      </button>
+      <div class="hud-speed">
+        <img class="speed-icon" src="https://api.iconify.design/mdi:tortoise.svg?color=%23ffffff" alt="Slower" width="18" height="18" />
+        <input id="speed-live" type="range" min="1" max="20" step="1" value="6" />
+        <img class="speed-icon" src="https://api.iconify.design/mdi:rabbit.svg?color=%23ffffff" alt="Faster" width="18" height="18" />
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
