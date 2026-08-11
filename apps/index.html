@@ -17,52 +17,84 @@
     line-height: 1.6;
   }
   .wrap {
-    max-width: 640px;
+    max-width: 880px;
     margin: 0 auto;
-    padding: 56px 24px 80px;
+    padding: 64px 24px 80px;
   }
   h1 {
-    font-size: 28px;
+    font-size: 32px;
     margin: 0 0 8px;
+    letter-spacing: -0.02em;
   }
   .subtitle {
     color: #999;
     font-size: 15px;
-    margin: 0 0 40px;
+    margin: 0 0 48px;
   }
-  .app-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
   }
   .app-card {
-    display: block;
-    padding: 20px 22px;
-    background: #111;
-    border: 1px solid #2a2a2a;
-    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 26px 26px;
+    min-height: 220px;
+    background: linear-gradient(160deg, #161616, #0c0c0c);
+    border: 1px solid #262626;
+    border-radius: 22px;
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.15s, background 0.15s;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+  }
+  .app-grid:has(.app-card:hover) .app-card:not(:hover) {
+    opacity: 0.2;
   }
   .app-card:hover {
-    border-color: #444;
-    background: #151515;
+    transform: translateY(-4px);
+    border-color: rgba(255, 214, 0, 0.5);
+    box-shadow: 0 0 56px -10px rgba(255, 214, 0, 0.55), 0 16px 32px rgba(0, 0, 0, 0.45);
+  }
+  .app-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 78px;
+    line-height: 1;
+    margin-bottom: 20px;
   }
   .app-name {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     color: #f4f4f4;
-    margin: 0 0 4px;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .app-name .highlight {
+    color: #ffd600;
   }
   .app-desc {
     font-size: 14px;
     color: #999;
     margin: 0;
+    flex: 1;
+  }
+  .app-cta {
+    margin-top: 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ddd;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .app-card:hover .app-cta {
+    color: #fff;
   }
   .back-link {
     display: inline-block;
-    margin-top: 48px;
+    margin-top: 56px;
     font-size: 13px;
     color: #666;
     text-decoration: none;
@@ -77,15 +109,19 @@
     <h1>Apps</h1>
     <p class="subtitle">Small tools I've built. Free to use.</p>
 
-    <div class="app-list">
-      <a href="/apps/simplepromptduh/" class="app-card">
-        <p class="app-name">simple PROMPT DUH</p>
+    <div class="app-grid">
+      <a href="/apps/simplepromptduh/" class="app-card icon-teleprompter">
+        <div class="app-icon">📽️</div>
+        <p class="app-name">simple PROMPT<span class="highlight">DUH</span></p>
         <p class="app-desc">A free browser teleprompter. Paste your script or load a Google Doc, then read it back at your own pace.</p>
+        <span class="app-cta">Open &rarr;</span>
       </a>
 
-      <a href="/apps/tastinggg/" class="app-card">
-        <p class="app-name">Tastinggg</p>
+      <a href="/apps/tastinggg/" class="app-card icon-tasting">
+        <div class="app-icon">🍸</div>
+        <p class="app-name">Tastin<span class="highlight">ggg</span></p>
         <p class="app-desc">Blind tasting for groups. Set up a lineup, have everyone submit notes, then reveal.</p>
+        <span class="app-cta">Open &rarr;</span>
       </a>
     </div>
 
