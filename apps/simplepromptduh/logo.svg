@@ -1,0 +1,19 @@
+<svg width="900" height="440" viewBox="0 0 900 440" xmlns="http://www.w3.org/2000/svg">
+  <text x="28" y="100" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700"
+        letter-spacing="3" fill="#aaaaaa">simple</text>
+
+  <text x="26" y="260" font-family="Arial, Helvetica, sans-serif" font-size="190" font-weight="900"
+        letter-spacing="2" fill="#f4f4f4">PROMPT</text>
+
+  <g transform="translate(60,290) rotate(-6)">
+    <text x="0" y="0" font-family="Arial, Helvetica, sans-serif" font-size="120" font-weight="900"
+          font-style="italic" letter-spacing="6"
+          fill="#ffd90f" stroke="#1b1440" stroke-width="7" stroke-linejoin="round"
+          paint-order="stroke fill">DUH</text>
+    <text x="6" y="6" font-family="Arial, Helvetica, sans-serif" font-size="120" font-weight="900"
+          font-style="italic" letter-spacing="6" fill="#d62828" opacity="0.9"
+          style="mix-blend-mode:multiply">DUH</text>
+    <text x="0" y="0" font-family="Arial, Helvetica, sans-serif" font-size="120" font-weight="900"
+          font-style="italic" letter-spacing="6" fill="#ffd90f">DUH</text>
+  </g>
+</svg>
