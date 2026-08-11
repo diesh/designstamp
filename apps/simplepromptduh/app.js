@@ -184,6 +184,7 @@ function updateDocStats() {
   const readMinutes = wordCount / WORDS_PER_MINUTE;
   docStats.textContent = `${wordCount} words · ~${formatMinutes(readMinutes)} at a natural speaking pace`;
   docStats.classList.remove("hidden");
+  applyTextFormatting();
 }
 
 async function loadDocById(docId) {
@@ -373,6 +374,9 @@ function applyTextFormatting() {
     textPreview.style.fontSize = `${previewPx}px`;
     textPreview.style.lineHeight = String(lineHeightMult);
     textPreview.style.textAlign = currentAlign;
+    textPreview.textContent = docText
+      ? docText.slice(0, 200)
+      : "The quick brown fox jumps over the lazy dog. Your script will scroll and look like this.";
   }
 }
 
