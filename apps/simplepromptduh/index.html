@@ -6,6 +6,7 @@
 <title>simple PROMPT DUH</title>
 <link rel="stylesheet" href="style.css" />
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
 </head>
 <body>
 
@@ -38,9 +39,8 @@
         <p class="privacy-note">Nothing stored on my end, just your doc link and settings saved on your device.</p>
 
         <div id="doc-row" class="hidden">
-          <label for="doc-url">Google Doc link</label>
-          <input id="doc-url" type="text" placeholder="Paste the Google Doc URL here" />
-          <button id="load-btn" class="btn primary">Load Doc</button>
+          <label>Google Doc</label>
+          <button id="pick-btn" class="btn primary">Choose from Drive</button>
         </div>
       </div>
 

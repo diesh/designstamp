@@ -5,8 +5,13 @@
 // See SETUP.md for step-by-step instructions on creating one.
 const GOOGLE_CLIENT_ID = "884631834825-8rf9ej6h5ivo4gqm83llko84u2dp4osn.apps.googleusercontent.com";
 
-// Read-only scope: only lets this app read files, nothing else.
-const SCOPE = "https://www.googleapis.com/auth/drive.readonly";
+// API key for the Google Picker (Google Cloud Console > Credentials > API Key,
+// with the Google Picker API enabled). Different from the OAuth Client ID above.
+const GOOGLE_API_KEY = "AIzaSyD_UrWapDTFcl1Vgp1IvfR7GW22JIkT1BI";
+
+// drive.file: only grants access to files the user explicitly picks via
+// Google Picker below, nothing else in their Drive.
+const SCOPE = "https://www.googleapis.com/auth/drive.file";
 
 // ==========================================================================
 // STATE
@@ -33,8 +38,7 @@ const useTextBtn = document.getElementById("use-text-btn");
 
 const signedInAs = document.getElementById("signed-in-as");
 const docRow = document.getElementById("doc-row");
-const docUrlInput = document.getElementById("doc-url");
-const loadBtn = document.getElementById("load-btn");
+const pickBtn = document.getElementById("pick-btn");
 const statusMsg = document.getElementById("status-msg");
 const controlsRow = document.getElementById("controls-row");
 const speedSlider = document.getElementById("speed");
@@ -92,7 +96,6 @@ function loadSavedSettings() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const saved = JSON.parse(raw);
-    if (saved.docUrl) docUrlInput.value = saved.docUrl;
     if (saved.pastedText) pasteTextarea.value = saved.pastedText;
     if (saved.speed) {
       speedSlider.value = saved.speed;
@@ -134,10 +137,14 @@ window.addEventListener("load", () => {
     fullscreenBtn.style.display = "none";
   }
 
-  if (GOOGLE_CLIENT_ID.startsWith("PASTE_")) {
-    setStatus("Google Client ID not configured yet. See SETUP.md.");
+  if (GOOGLE_CLIENT_ID.startsWith("PASTE_") || GOOGLE_API_KEY.startsWith("PASTE_")) {
+    setStatus("Google Client ID / API key not configured yet. See SETUP.md.");
     modeGdocBtn.disabled = true;
     return;
+  }
+
+  if (window.gapi) {
+    gapi.load("picker", () => { pickerLoaded = true; });
   }
 
   tokenClient = google.accounts.oauth2.initTokenClient({
@@ -159,10 +166,7 @@ window.addEventListener("load", () => {
 // ==========================================================================
 // LOAD DOC
 // ==========================================================================
-function extractDocId(url) {
-  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-  return match ? match[1] : null;
-}
+let pickerLoaded = false;
 
 function formatMinutes(mins) {
   if (mins < 1) return `${Math.max(1, Math.round(mins * 60))} sec`;
@@ -178,17 +182,9 @@ function updateDocStats() {
   docStats.classList.remove("hidden");
 }
 
-loadBtn.addEventListener("click", async () => {
-  const url = docUrlInput.value.trim();
-  const docId = extractDocId(url);
-
-  if (!docId) {
-    setStatus("Couldn't find a doc ID in that link. Paste the full Google Doc URL.");
-    return;
-  }
-
+async function loadDocById(docId) {
   setStatus("Loading doc...", false);
-  loadBtn.disabled = true;
+  pickBtn.disabled = true;
 
   try {
     const res = await fetch(
@@ -204,7 +200,6 @@ loadBtn.addEventListener("click", async () => {
       } else {
         setStatus(`Failed to load doc (${res.status}).`);
       }
-      loadBtn.disabled = false;
       return;
     }
 
@@ -212,21 +207,48 @@ loadBtn.addEventListener("click", async () => {
 
     if (!docText) {
       setStatus("Doc loaded but it looks empty.");
-      loadBtn.disabled = false;
       return;
     }
 
     updateDocStats();
-
     setStatus("Doc loaded.", false);
     controlsRow.classList.remove("hidden");
     editToggleBtn.classList.remove("hidden");
-    saveSettings({ docUrl: url });
   } catch (err) {
     setStatus("Network error loading doc: " + err.message);
   } finally {
-    loadBtn.disabled = false;
+    pickBtn.disabled = false;
   }
+}
+
+function openPicker() {
+  if (!pickerLoaded) {
+    setStatus("Picker is still loading, try again in a second.");
+    return;
+  }
+  const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
+    .setMimeTypes("application/vnd.google-apps.document");
+
+  const picker = new google.picker.PickerBuilder()
+    .addView(view)
+    .setOAuthToken(accessToken)
+    .setDeveloperKey(GOOGLE_API_KEY)
+    .setCallback((data) => {
+      if (data.action === google.picker.Action.PICKED) {
+        const doc = data.docs[0];
+        loadDocById(doc.id);
+      }
+    })
+    .build();
+  picker.setVisible(true);
+}
+
+pickBtn.addEventListener("click", () => {
+  if (!accessToken) {
+    setStatus("Sign in first.");
+    return;
+  }
+  openPicker();
 });
 
 // ==========================================================================
