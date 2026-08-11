@@ -36,11 +36,43 @@ button, input {
 
 .setup-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 680px;
   background: #111;
   border: 1px solid #2a2a2a;
   border-radius: 12px;
   padding: 32px;
+}
+
+@media (max-width: 480px) {
+  #setup-screen {
+    padding: 12px;
+  }
+
+  .setup-card {
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .logo-prompt {
+    font-size: 38px;
+  }
+
+  .logo-duh {
+    font-size: 22px;
+  }
+
+  .format-ribbon {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .ribbon-divider {
+    display: none;
+  }
+
+  .ribbon-group select {
+    min-width: 76px;
+  }
 }
 
 .logo {
