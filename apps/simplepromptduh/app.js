@@ -233,6 +233,7 @@ function openPicker() {
     .addView(view)
     .setOAuthToken(accessToken)
     .setDeveloperKey(GOOGLE_API_KEY)
+    .setOrigin(window.location.protocol + "//" + window.location.host)
     .setCallback((data) => {
       if (data.action === google.picker.Action.PICKED) {
         const doc = data.docs[0];
