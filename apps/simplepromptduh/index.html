@@ -39,11 +39,13 @@
 
       <div id="source-toggle" class="source-toggle">
         <button type="button" id="mode-paste-btn" class="source-btn active">Paste text</button>
-        <span class="source-or">or</span>
-        <button type="button" id="mode-gdoc-btn" class="source-btn">Use a Google Doc</button>
+        <button type="button" id="mode-gdoc-btn" class="source-btn source-btn-stacked">
+          <span class="tab-label">Use a Google Doc</span>
+          <span class="tab-caption">Requires sign in w Google</span>
+        </button>
       </div>
-      <p class="hint hint-left">Requires sign in w Google</p>
 
+      <div class="source-panel">
       <div id="paste-section">
         <textarea id="paste-textarea" rows="8" placeholder="Paste or type your script here"></textarea>
         <button id="use-text-btn" class="btn primary">Use this text, duh!</button>
@@ -59,6 +61,7 @@
           <label>Google Doc</label>
           <button id="pick-btn" class="btn primary">Choose from Drive, Duh!</button>
         </div>
+      </div>
       </div>
 
       <p id="status-msg" class="status-msg"></p>

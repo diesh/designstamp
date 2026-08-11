@@ -136,45 +136,98 @@ button, input {
 
 .source-toggle {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  align-items: flex-end;
+  gap: 4px;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 }
 
 .source-btn {
-  padding: 8px 14px;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 10px 10px 0 0;
   border: 1px solid #333;
-  background: #1a1a1a;
+  border-bottom: none;
+  background: #161616;
   color: #999;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  min-height: 36px;
+  height: 52px;
+  position: relative;
+}
+
+/* Active tab drops a fake bottom edge in the panel's own background color,
+   right over the panel's top border, so the tab visually fuses into the
+   panel instead of floating above it. */
+.source-btn.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: #161616;
 }
 
 .source-btn.active {
-  background: #4a8dff;
-  border-color: #4a8dff;
+  background: #161616;
+  border-color: #333;
   color: #fff;
 }
 
 #mode-gdoc-btn {
-  background: #262626;
-  border-color: #333;
+  background: #1a1a1a;
+  border-color: #2a2a2a;
   color: #999;
 }
 
 #mode-gdoc-btn:hover {
-  background: #2c2c2c;
+  background: #1f1f1f;
   color: #bbb;
 }
 
 #mode-gdoc-btn.active {
-  background: #2f3d52;
-  border-color: #3a4a63;
+  background: #161616;
+  border-color: #333;
+  color: #fff;
+}
+
+#mode-gdoc-btn.active::after {
+  background: #161616;
+}
+
+.source-btn-stacked {
+  gap: 2px;
+}
+
+.tab-label {
+  line-height: 1.1;
+}
+
+.tab-caption {
+  font-size: 10px;
+  font-weight: 500;
+  color: #777;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.source-btn.active .tab-caption,
+#mode-gdoc-btn.active .tab-caption {
   color: #cfe0ff;
+}
+
+.source-panel {
+  border: 1px solid #333;
+  border-radius: 0 10px 10px 10px;
+  background: #161616;
+  padding: 18px;
+  margin-bottom: 16px;
 }
 
 #paste-section {
